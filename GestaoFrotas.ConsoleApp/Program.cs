@@ -14,6 +14,9 @@ namespace GestaoFrotas.ConsoleApp
 
     private static VeiculoService _veiculoService = new VeiculoService();
     private static VeiculoView _veiculoView = new VeiculoView(_veiculoService);
+
+    private static AbastecimentoService _abastecimentoService = new AbastecimentoService();
+    private static AbastecimentoView _abastecimentoView = new AbastecimentoView(_abastecimentoService, _veiculoService);
     // private static PecaView _pecaView = new PecaView();
     // private static OsView _osView = new OsView();
     // ...etc...
@@ -59,9 +62,7 @@ namespace GestaoFrotas.ConsoleApp
             Console.ReadKey();
             break;
           case "4":
-            // ...
-            Console.WriteLine("Módulo de Abastecimento em construção...");
-            Console.ReadKey();
+            _abastecimentoView.RegistrarAbastecimento();
             break;
           // ... (adicionar os outros casos) ...
           case "6":
