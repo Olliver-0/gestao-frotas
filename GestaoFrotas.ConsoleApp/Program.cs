@@ -13,10 +13,12 @@ namespace GestaoFrotas.ConsoleApp
     // (Por enquanto, elas estão comentadas pois os arquivos ainda não existem)
 
     private static VeiculoService _veiculoService = new VeiculoService();
-    private static VeiculoView _veiculoView = new VeiculoView(_veiculoService);
-
     private static AbastecimentoService _abastecimentoService = new AbastecimentoService();
+    private static ChecklistService _checklistService = new ChecklistService();
+
+    private static VeiculoView _veiculoView = new VeiculoView(_veiculoService);
     private static AbastecimentoView _abastecimentoView = new AbastecimentoView(_abastecimentoService, _veiculoService);
+    private static ChecklistView _checklistView = new ChecklistView(_checklistService, _veiculoService);
     // private static PecaView _pecaView = new PecaView();
     // private static OsView _osView = new OsView();
     // ...etc...
@@ -64,7 +66,9 @@ namespace GestaoFrotas.ConsoleApp
           case "4":
             _abastecimentoView.RegistrarAbastecimento();
             break;
-          // ... (adicionar os outros casos) ...
+          case "5":
+            _checklistView.ExecutarChecklist();
+            break;
           case "6":
             // ...
             Console.WriteLine("Módulo de Relatórios em construção...");
