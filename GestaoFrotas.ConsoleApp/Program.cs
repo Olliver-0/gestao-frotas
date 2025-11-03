@@ -1,46 +1,61 @@
 ﻿using System;
-// Adiciona os 'using' para as pastas que criamos.
 using GestaoFrotas.ConsoleApp.Models;
 using GestaoFrotas.ConsoleApp.Services;
 using GestaoFrotas.ConsoleApp.Views;
 
-// Define que o Program.cs está na "raiz" do seu projeto
 namespace GestaoFrotas.ConsoleApp
 {
   class Program
   {
-    // Aqui é onde vocês vão instanciar as Views (Telas)
-    // (Por enquanto, elas estão comentadas pois os arquivos ainda não existem)
-
+    // --- Instâncias de Serviços ---
     private static VeiculoService _veiculoService = new VeiculoService();
     private static AbastecimentoService _abastecimentoService = new AbastecimentoService();
     private static ChecklistService _checklistService = new ChecklistService();
+    
+    // Serviços ADICIONADOS (RF02, RF05, RF06)
+    private static MotoristaService _motoristaService = new MotoristaService();
+    
+    // OsService agora precisa do MotoristaService para a RN-002
+    private static OsService _osService = new OsService(_veiculoService, _motoristaService); 
+    
+    private static ManutencaoAutomaticaService _manutencaoAutomaticaService = new ManutencaoAutomaticaService(_veiculoService);
+    // private static PecaService _pecaService = new PecaService();
 
+
+    // --- Instâncias de Views ---
     private static VeiculoView _veiculoView = new VeiculoView(_veiculoService);
     private static AbastecimentoView _abastecimentoView = new AbastecimentoView(_abastecimentoService, _veiculoService);
     private static ChecklistView _checklistView = new ChecklistView(_checklistService, _veiculoService);
     // private static PecaView _pecaView = new PecaView();
-    // private static OsView _osView = new OsView();
-    // ...etc...
+
+    // Views ADICIONADAS (RF02, RF05, RF06/07)
+    private static OsView _osView = new OsView(_osService, _veiculoService); 
+    private static MotoristaView _motoristaView = new MotoristaView(_motoristaService);
+    private static ManutencaoAutomaticaView _manutencaoAutomaticaView = new ManutencaoAutomaticaView(_manutencaoAutomaticaService, _veiculoService);
+    
 
     static void Main(string[] args)
     {
-      // O 'while(true)' cria o loop principal do menu.
-      // O programa só fecha quando o usuário digita "0".
       while (true)
       {
-        Console.Clear(); // Limpa a tela
+        Console.Clear(); 
         Console.WriteLine("=========================================");
-        Console.WriteLine(" GESTÃO DE MANUTENÇÃO DE FROTAS");
+        Console.WriteLine(" GESTÃO DE MANUTENÇÃO DE FROTAS"); 
         Console.WriteLine("=========================================");
         Console.WriteLine();
         Console.WriteLine("Menu Principal:");
-        Console.WriteLine("1 - Gestão de Veículos");
+        Console.WriteLine("\n--- MÓDULOS COORDENADOR ---"); 
+        Console.WriteLine("1 - Gestão de Veículos (RF01)");
         Console.WriteLine("2 - Gestão de Peças e Estoque");
-        Console.WriteLine("3 - Gestão de Manutenção (Ordens de Serviço)");
-        Console.WriteLine("4 - Registrar Abastecimento");
-        Console.WriteLine("5 - Registrar Checklist Pré-Viagem");
-        Console.WriteLine("6 - Relatórios"); // (RF10, RF12, RF13)
+        Console.WriteLine("3 - Gestão de Manutenção (OS) (RF06/07)");
+        Console.WriteLine("7 - Gestão de Motoristas (RF02)");
+        Console.WriteLine("6 - Relatórios (RN-010)"); 
+        
+        Console.WriteLine("\n--- MÓDULOS MOTORISTA ---"); 
+        Console.WriteLine("4 - Registrar Abastecimento (RN-006)"); 
+        Console.WriteLine("5 - Registrar Checklist Pré-Viagem (RN-007)"); 
+        Console.WriteLine("8 - Manutenções Automáticas (RF05)");
+
         Console.WriteLine();
         Console.WriteLine("0 - Sair do Sistema");
         Console.WriteLine();
@@ -54,14 +69,12 @@ namespace GestaoFrotas.ConsoleApp
             _veiculoView.ExibirMenuVeiculos();
             break;
           case "2":
-            // _pecaView.ExibirMenuPecas(); // Pessoa 3 vai descomentar
+            // _pecaView.ExibirMenuPecas(); 
             Console.WriteLine("Módulo de Peças em construção...");
             Console.ReadKey();
             break;
           case "3":
-            // _osView.ExibirMenuOS(); // Pessoa 2 vai descomentar
-            Console.WriteLine("Módulo de Manutenção em construção...");
-            Console.ReadKey();
+            _osView.ExibirMenuOS(); 
             break;
           case "4":
             _abastecimentoView.RegistrarAbastecimento();
@@ -74,12 +87,18 @@ namespace GestaoFrotas.ConsoleApp
             Console.WriteLine("Módulo de Relatórios em construção...");
             Console.ReadKey();
             break;
+          case "7":
+            _motoristaView.ExibirMenuMotoristas();
+            break;
+          case "8":
+            _manutencaoAutomaticaView.ExibirMenuManutencao();
+            break;
           case "0":
             Console.WriteLine("Saindo do sistema. Até logo!");
-            return; // Encerra o programa
+            return; 
           default:
             Console.WriteLine("Opção inválida! Tente novamente.");
-            Console.ReadKey(); // Pausa para o usuário ler a msg
+            Console.ReadKey(); 
             break;
         }
       }

@@ -1,4 +1,4 @@
-using System; // Necessário para o DateTime
+using System; 
 
 namespace GestaoFrotas.ConsoleApp.Models
 {
@@ -6,38 +6,44 @@ namespace GestaoFrotas.ConsoleApp.Models
   {
     public int id;
     public DateTime dataAbertura;
-
-    // --- Atributos Opcionais Corrigidos ---
-    // Usamos '?' para permitir que esses campos sejam nulos,
-    // pois uma OS recém-criada não tem esses dados.
-    public DateTime? dataFechamento;
     public double hodometroEntrada;
-    public double? hodometroSaida;
-    // ---
-
-    public string tipo;
+    public string tipo; // Ex: "Correção"
     public int veiculoId;
-    public int motoristaId;
+    public int motoristaId; // Necessário para RN-002
+    public int? mecanicoId; 
 
-    // --- Atributo Opcional Corrigido ---
-    public int? mecanicoId;
-    // ---
+    // --- Campos Adicionados (RF06 / RF07) ---
+    public string descricao; 
+    public string oficina; 
+    public string status; // "Aberta", "Finalizada", "Excluída"
+    public double? custoFinal; 
+    public DateTime? dataFechamento; 
+    public double? hodometroSaida; // RN-005
+    public string observacoesFechamento; 
+    public bool documentosValidados; // RF07
+
 
     /**
-    * Finaliza a Ordem de Serviço, registrando a data/hora
-    * e a quilometragem de saída (RN-005).
+    * Finaliza a Ordem de Serviço (RN-005)
     */
-    public void fecharOS(double hodometroSaida)
+    public void fecharOS(double custo, DateTime dataConclusao, string observacoes, double hodometroSaida)
     {
-      // Verifica se a OS já não foi fechada (para evitar fechar 2x)
-      if (this.dataFechamento == null)
+      if (this.status == "Aberta")
       {
-        // Registra o momento exato do fechamento
-        this.dataFechamento = DateTime.Now;
-
-        // Registra o hodômetro de saída
-        this.hodometroSaida = hodometroSaida;
+        this.status = "Finalizada";
+        this.dataFechamento = dataConclusao;
+        this.custoFinal = custo;
+        this.observacoesFechamento = observacoes;
+        this.hodometroSaida = hodometroSaida; 
       }
+    }
+
+    /**
+    * Marca a OS como validada (RF07)
+    */
+    public void validarDocumentos()
+    {
+      this.documentosValidados = true;
     }
   }
 }
