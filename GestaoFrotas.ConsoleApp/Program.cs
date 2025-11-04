@@ -4,6 +4,7 @@ using GestaoFrotas.ConsoleApp.Models;
 using GestaoFrotas.ConsoleApp.Services;
 using GestaoFrotas.ConsoleApp.Views;
 
+
 // Define que o Program.cs está na "raiz" do seu projeto
 namespace GestaoFrotas.ConsoleApp
 {
@@ -19,6 +20,8 @@ namespace GestaoFrotas.ConsoleApp
     private static VeiculoView _veiculoView = new VeiculoView(_veiculoService);
     private static AbastecimentoView _abastecimentoView = new AbastecimentoView(_abastecimentoService, _veiculoService);
     private static ChecklistView _checklistView = new ChecklistView(_checklistService, _veiculoService);
+
+    private static PecaView _pecaView = new PecaView();
     // private static PecaView _pecaView = new PecaView();
     // private static OsView _osView = new OsView();
     // ...etc...
@@ -55,7 +58,7 @@ namespace GestaoFrotas.ConsoleApp
             break;
           case "2":
             // _pecaView.ExibirMenuPecas(); // Pessoa 3 vai descomentar
-            Console.WriteLine("Módulo de Peças em construção...");
+            _pecaView.ExibirMenuPeca();
             Console.ReadKey();
             break;
           case "3":

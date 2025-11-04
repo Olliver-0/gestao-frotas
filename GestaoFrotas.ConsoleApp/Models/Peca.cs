@@ -7,8 +7,10 @@ namespace GestaoFrotas.ConsoleApp.Models
     public int id;
     public string nome;
     public int quantidadeEstoque;
+    public string descricao;
     public int pontoReposicao;
-    public bool isCritica;
+    
+    //public bool isCritica;
 
     /**
     * Adiciona uma quantidade de itens ao estoque da peça.
