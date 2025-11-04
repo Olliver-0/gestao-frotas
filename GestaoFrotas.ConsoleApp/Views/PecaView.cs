@@ -81,9 +81,9 @@ namespace GestaoFrotas.ConsoleApp.Views
             Console.WriteLine(" CADASTRAR NOVA PEÇA ");
             Console.WriteLine("=========================================");
 
-            
 
-            Console.WriteLine("")
+
+            Console.WriteLine("");
         }
     }
 }
