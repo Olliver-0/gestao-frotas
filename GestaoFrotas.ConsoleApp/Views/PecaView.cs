@@ -1,14 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using GestaoFrotas.ConsoleApp.Models;
 using GestaoFrotas.ConsoleApp.Services;
+using GestaoFrotas.ConsoleApp.Views;
 
 
 namespace GestaoFrotas.ConsoleApp.Views
 {
     public class PecaView
     {
+        Peca novaPeca = new Peca();
+        private static int proximoId = 1;
+        
+        //private readonly VeiculoView _veiculoView = new VeiculoView(new VeiculoService());
         public void ExibirMenuPeca()
         {
             while (true)
@@ -55,35 +61,48 @@ namespace GestaoFrotas.ConsoleApp.Views
                 }
             }
         }
-         Peca novoPeca = new Peca();
-
         private void CadastrarPeca()
         {
             Console.Clear();
-
-            Console.WriteLine(" ===== CADASTRAR PEÇA =====");
-            Console.WriteLine("Para cancelar, digite 0 a qualquer momento");
-
-            Console.WriteLine("Digite o nome: ");
-            novoPeca.nome = Console.ReadLine();
-            Console.WriteLine("Digite a quantidade: ");
-            novoPeca.quantidadeEstoque = int.Parse(Console.ReadLine());
-            Console.WriteLine("Digite a Descrição: ");
-            novoPeca.descricao = Console.ReadLine();
-            Console.WriteLine("Estoque minimo: ");
-            novoPeca.pontoReposicao = int.Parse(Console.ReadLine());
-           
-           
-
-        
-
             Console.WriteLine("=========================================");
             Console.WriteLine(" CADASTRAR NOVA PEÇA ");
             Console.WriteLine("=========================================");
 
+            Console.WriteLine("Digite o nome: ");
+            novaPeca.nome = Console.ReadLine();
 
+            Console.WriteLine("Digite a quantidade: ");
+            novaPeca.quantidadeEstoque = int.Parse(Console.ReadLine());
 
-            Console.WriteLine("");
+            Console.WriteLine("Digite a Descrição: ");
+            novaPeca.descricao = Console.ReadLine();
+            Console.WriteLine("Estoque minimo: ");
+            novaPeca.pontoReposicao = int.Parse(Console.ReadLine());
+
+            if (string.IsNullOrEmpty(novaPeca.nome)) return;
+
+            if (novaPeca.quantidadeEstoque < 0)
+            {
+                Console.WriteLine("O valor deve ser maior ou igual a zero");
+                return;
+            }
+
+            if (novaPeca.pontoReposicao < 0)
+            {
+                Console.WriteLine("O valor deve ser maior ou igual a zero");
+                return;
+            }
+        }
+        private void ConsultarPeca()
+        {
+            Console.Clear();
+            Console.WriteLine("=========================================");
+            Console.WriteLine(" CONSULTAR PEÇA ");
+            Console.WriteLine("=========================================");
+
+            Console.Write
+
         }
     }
+
 }

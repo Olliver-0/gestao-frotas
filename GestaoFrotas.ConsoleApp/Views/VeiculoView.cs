@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection.Metadata;
 using GestaoFrotas.ConsoleApp.Models;
 using GestaoFrotas.ConsoleApp.Services;
 
@@ -295,7 +296,7 @@ namespace GestaoFrotas.ConsoleApp.Views
       PausarEVoltar();
     }
 
-    private void PausarEVoltar(string mensagem = "Pressione qualquer tecla para voltar...")
+    public void PausarEVoltar(string mensagem = "Pressione qualquer tecla para voltar...")
     {
       Console.WriteLine();
       Console.WriteLine(mensagem);

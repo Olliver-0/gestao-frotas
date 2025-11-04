@@ -4,7 +4,7 @@ namespace GestaoFrotas.ConsoleApp.Models
 {
   public class Peca
   {
-    public int id;
+    public int id = 1;
     public string nome;
     public int quantidadeEstoque;
     public string descricao;
