@@ -9,7 +9,7 @@ namespace GestaoFrotas.ConsoleApp.Models
     public int quantidadeEstoque;
     public string descricao;
     public int pontoReposicao;
-    
+
     //public bool isCritica;
 
     /**
