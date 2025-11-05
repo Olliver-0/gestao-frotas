@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using GestaoFrotas.ConsoleApp.Models;
 using GestaoFrotas.ConsoleApp.Services;
 using GestaoFrotas.ConsoleApp.Views;
+using Microsoft.VisualBasic;
 
 
 namespace GestaoFrotas.ConsoleApp.Views
@@ -14,7 +15,7 @@ namespace GestaoFrotas.ConsoleApp.Views
     {
         private readonly PecaService _pecaService = new PecaService();
         //private readonly VeiculoView _veiculoView = new VeiculoView(new VeiculoService());
-        public void ExibirMenuPeca()
+        public void viewExibirMenuPeca()
         {
             while (true)
             {
@@ -38,13 +39,13 @@ namespace GestaoFrotas.ConsoleApp.Views
                 switch (opcao)
                 {
                     case "1":
-                        CadastrarPeca();
+                        ViewCadastrarPeca();
                         break;
                     case "2":
-                         ConsultarPeca();
+                        ViewConsultarPeca();
                         break;
                     case "3":
-                        // EditarPeca();
+                        ViewEditarPeca();
                         break;
                     case "4":
                         // ExcluirPeca();
@@ -60,8 +61,10 @@ namespace GestaoFrotas.ConsoleApp.Views
                 }
             }
         }
-        private void CadastrarPeca()
+        private void ViewCadastrarPeca()
         {
+            string msg;
+
             Peca novaPeca = new Peca();
             Console.Clear();
             Console.WriteLine("=========================================");
@@ -69,8 +72,7 @@ namespace GestaoFrotas.ConsoleApp.Views
             Console.WriteLine("=========================================");
             Console.WriteLine("Para cancelar deixa o nome em branco e pressione enter");
 
-
-            Console.WriteLine("Digite o nome: ");
+            MostrarMsg("Digite o nome: ");
             novaPeca.nome = Console.ReadLine();
             if (string.IsNullOrEmpty(novaPeca.nome)) return;
             Console.WriteLine("Digite a quantidade: ");
@@ -79,24 +81,19 @@ namespace GestaoFrotas.ConsoleApp.Views
             novaPeca.descricao = Console.ReadLine();
             Console.WriteLine("Estoque minimo: ");
             novaPeca.pontoReposicao = int.Parse(Console.ReadLine());
-            if (novaPeca.quantidadeEstoque < 0)
-            {
-                Console.WriteLine("O valor deve ser maior ou igual a zero");
-                return;
-            }
-            if (novaPeca.pontoReposicao < 0)
-            {
-                Console.WriteLine("O valor deve ser maior ou igual a zero");
-                return;
-            }
-            Console.WriteLine(" PEÇA CADASTRADA COM SUCESSO ");
 
+            msg = _pecaService.cadastrarPeca(novaPeca);
+
+            MostrarMsg(msg);
         }
 
-        private Peca? ConsultarPeca()
+        //---------------------------------------------------------------------------------------------------
+
+
+        private Peca ViewConsultarPeca()
         {
             string cod;
-            int opBuscar, opAcao;
+            int opAcao;
             Peca buscarPeca = null;
 
             Console.Clear();
@@ -104,35 +101,13 @@ namespace GestaoFrotas.ConsoleApp.Views
             Console.WriteLine(" CONSULTAR PEÇA ");
             Console.WriteLine("=========================================");
 
-            Console.WriteLine("1- Buscar por ID");
-            Console.WriteLine("2- Buscar por nome");
-            // troque só esta linha:
-            if (!int.TryParse(Console.ReadLine(), out opBuscar))
-            { 
-                Console.WriteLine("Opção inválida"); return null; 
-            }
-
-            if (opBuscar == 1)
-            {
-                Console.WriteLine("Digite o ID da peça: ");
-                cod = Console.ReadLine();
-                buscarPeca = _pecaService.buscarPeca(cod);
-            }
-            else if (opBuscar == 2)
-            {
-                Console.WriteLine("Digite nome da peça: ");
-                cod = Console.ReadLine();
-                buscarPeca = _pecaService.buscarPeca(cod);
-            }
-            else
-            {
-                Console.WriteLine("Opção inválida");
-                return null;
-            }
+            Console.WriteLine("Digite o ID da peça: ");
+            cod = Console.ReadLine();
+            buscarPeca = _pecaService.buscarPeca(cod);
 
             if (buscarPeca == null)
             {
-                Console.WriteLine("\n=========================================");
+                Console.WriteLine("\n=======================================");
                 Console.WriteLine(" ERRO - PEÇA NÃO ENCONTRADA");
                 Console.WriteLine("=========================================");
                 return null;
@@ -141,6 +116,7 @@ namespace GestaoFrotas.ConsoleApp.Views
             {
                 Console.WriteLine($"ID: {buscarPeca.id}");
                 Console.WriteLine($"Nome: {buscarPeca.nome}");
+                Console.WriteLine($"Descrição: {buscarPeca.descricao}");
                 Console.WriteLine($"Quantidade em Estoque: {buscarPeca.quantidadeEstoque}");
                 Console.WriteLine($"Ponto de Reposição: {buscarPeca.pontoReposicao}");
 
@@ -155,14 +131,140 @@ namespace GestaoFrotas.ConsoleApp.Views
 
                 if (opAcao == 1)
                 {
-                    _pecaService.editarPeca(buscarPeca.id);
+                    ViewEditarPecaConsult(buscarPeca);
                 }
                 if (opAcao == 2)
                 {
-                    _pecaService.excluirPeca(buscarPeca.id);
+                    //xcluirPeca();
                 }
                 return buscarPeca;
             }
+        }
+        
+
+//---------------------------------------------------------------------------------------------------
+
+
+        private Peca ViewEditarPeca()
+        {
+            string cod;
+            string novoNome;
+            string novaQuant;  
+            string novaDesc;
+            string novoEstMin;  
+            string op;
+
+            Peca buscarPeca = null;
+
+            Console.Clear();
+            Console.WriteLine("=========================================");
+            Console.WriteLine(" EDITAR PEÇA ");
+            Console.WriteLine("=========================================");
+
+            Console.WriteLine("Digite o ID da peça: ");
+            cod = Console.ReadLine();
+
+            if (!int.TryParse(cod, out int id))
+            {
+                Console.WriteLine("\n=======================================");
+                Console.WriteLine(" ERRO - ID INVALIDO");
+                Console.WriteLine("=========================================");
+                return null;
+            }
+
+            buscarPeca = _pecaService.buscarPeca(cod);
+
+            if (buscarPeca == null)
+            {
+                Console.WriteLine("\n=======================================");
+                Console.WriteLine(" ERRO - PEÇA NÃO ENCONTRADA");
+                Console.WriteLine("=========================================");
+                return null;
+            }
+            else
+            {
+                Console.WriteLine($"ID: {buscarPeca.id}");
+                Console.WriteLine($"Nome: {buscarPeca.nome}");
+                Console.WriteLine($"Quantidade em Estoque: {buscarPeca.quantidadeEstoque}");
+                Console.WriteLine($"Ponto de Reposição: {buscarPeca.pontoReposicao}");
+            }
+
+            Console.WriteLine("\n=======================================");
+            Console.WriteLine(" NOVOS DADOS ");
+            Console.WriteLine("=========================================");
+
+
+            Console.WriteLine("Digite o novo nome: ");
+            novoNome = Console.ReadLine();
+            Console.WriteLine("Digite a nova quantidade: ");
+            Console.Write("Digite a nova quantidade: ");
+            novaQuant = Console.ReadLine();   
+            Console.WriteLine("Digite a nova Descrição: ");
+            novaDesc = Console.ReadLine();
+            Console.WriteLine("Estoque minimo novo: ");
+            novoEstMin = Console.ReadLine();
+
+            Console.WriteLine("Confirmar alterações? (S/N)");
+            op = Console.ReadLine();
+
+            if (op == "S" || op == "s")
+            {
+                _pecaService.editarPecaMenu(buscarPeca, novoNome, novaQuant, novaDesc, novoEstMin);
+                Console.WriteLine("Dados salvos com sucesso!!");
+                return buscarPeca;    
+            }
+            else if (op == "N" || op == "n")
+            {
+                Console.WriteLine("Operação cancelada");
+                return null;
+            }
+            else
+            {
+                Console.WriteLine("Opção invalida");
+                return null;
+            }
+        }
+
+        //---------------------------------------------------------------------------------------------------
+
+        private void ViewEditarPecaConsult(Peca peca)
+        {
+            Console.Clear();
+            Console.WriteLine("=========================================");
+            Console.WriteLine(" EDITAR PEÇA ");
+            Console.WriteLine("=========================================");
+
+            Console.WriteLine($"ID: {peca.id}");
+            Console.WriteLine($"Nome atual: {peca.nome}");
+            Console.WriteLine($"Quantidade atual: {peca.quantidadeEstoque}");
+            Console.WriteLine($"Descrição atual: {peca.descricao}");
+            Console.WriteLine($"Estoque mínimo atual: {peca.pontoReposicao}");
+
+            Console.Write("Novo nome: ");
+            var nomeNovo = Console.ReadLine();
+            Console.Write("Nova quantidade: ");
+            var novaQuant = Console.ReadLine();
+            Console.Write("Nova descrição: ");
+            var novaDesc = Console.ReadLine();
+            Console.Write("Novo estoque mínimo: ");
+            var novoEstMin = Console.ReadLine();
+            Console.Write("\nConfirmar alterações? (S/N): ");
+            var op = Console.ReadLine();
+
+            if (op == "S" || op == "s")
+            {
+                _pecaService.editarPecaConsult(peca, nomeNovo, novaQuant, novaDesc, novoEstMin);
+                Console.WriteLine("\nDados salvos com sucesso!");
+            }
+            else
+            {
+                Console.WriteLine("\nOperação cancelada.");
+            }
+        }
+        
+        public void MostrarMsg(string mensagem)
+        {
+            Console.WriteLine(mensagem);
         }
     }
 }
