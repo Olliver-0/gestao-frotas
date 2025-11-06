@@ -6,9 +6,9 @@ namespace GestaoFrotas.ConsoleApp.Models
   {
     public int id = 1;
     public string nome;
-    public int quantidadeEstoque;
+    public string quantidadeEstoque;
     public string descricao;
-    public int pontoReposicao;
+    public string pontoReposicao;
     //int posicao;
 
 
@@ -22,7 +22,7 @@ namespace GestaoFrotas.ConsoleApp.Models
       }
     }
     
-    public void removerEstoque(int quantidade)
+    /*public void removerEstoque(int quantidade)
     {
      
       if (quantidade > 0 && this.quantidadeEstoque >= quantidade)
@@ -43,6 +43,6 @@ namespace GestaoFrotas.ConsoleApp.Models
       {
         return false; 
       }
-    }
+    }*/
   }
 }
