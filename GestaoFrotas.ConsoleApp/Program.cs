@@ -58,7 +58,7 @@ namespace GestaoFrotas.ConsoleApp
             break;
           case "2":
             // _pecaView.ExibirMenuPecas(); // Pessoa 3 vai descomentar
-            _pecaView.viewExibirMenuPeca();
+            _pecaView.ViewExibirMenuPeca();
             Console.ReadKey();
             break;
           case "3":
