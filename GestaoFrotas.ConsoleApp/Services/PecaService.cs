@@ -93,9 +93,41 @@ namespace GestaoFrotas.ConsoleApp.Services
 
         public List<Peca> ListarPecas()
         {
-            return _pecas.ToList(); 
+            return _pecas.ToList();
+        }
+        public string AdicionarEstoque(Peca peca, string quant, string op)
+        {
+            if (op == "S" || op == "s")
+            {
+                if (!int.TryParse(quant, out int Quant))
+                    return "Erro: A quantidade acrescentada deve ser um número!";
+                if (Quant < 0)
+                    return "Erro: A quantidade acrescentada não pode ser negativa!";
+
+                int EstAnt = int.Parse(peca.quantidadeEstoque);
+                EstAnt += Quant;
+                peca.quantidadeEstoque = EstAnt.ToString();
+                
+                return "\nQuantidade acrescentada com sucesso!!";   
+            }
+            if (op == "N" || op == "n")
+            {
+                return "\ninclusão cancelada!!";
+            }
+            return null;
+        }  
+            /*if (!int.TryParse(quant, out int Quant))
+                return "Erro: A quantidade acrescentada deve ser um número!";
+            if (Quant < 0)
+                return "Erro: A quantidade acrescentada não pode ser negativa!";
+
+            int EstAnt = int.Parse(peca.quantidadeEstoque);
+            EstAnt += Quant;
+            peca.quantidadeEstoque = EstAnt.ToString();
+            
+            return "Quantidade acrescentada com sucesso!!";*/
         }
     }
-}
+
 
 

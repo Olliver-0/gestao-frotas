@@ -44,7 +44,6 @@ namespace GestaoFrotas.ConsoleApp.Views
                         break;
                     case "2":
                         ViewConsultarPeca();
-                        LimparTela();
                         break;
                     case "3":
                         ViewEditarPeca();
@@ -98,6 +97,7 @@ namespace GestaoFrotas.ConsoleApp.Views
             string cod;
             int opAcao;
             Peca buscarPeca = null;
+            
 
             LimparTela();
             MostrarMsg("=========================================");
@@ -144,6 +144,7 @@ namespace GestaoFrotas.ConsoleApp.Views
 
                 MostrarMsg("\n1- Editar peça");
                 MostrarMsg("2- Excluir peça");
+                MostrarMsg("3- Adicionar estoque");
                 MostrarMsg("0- Voltar ao menu\n");
                 MostrarMsg("Escolha uma opção: ");
 
@@ -161,6 +162,10 @@ namespace GestaoFrotas.ConsoleApp.Views
                 else if (opAcao == 2)
                 {
                     //excluirPeca();
+                }
+                else if(opAcao == 3)
+                {
+                    ViewAdicionarEstoque(buscarPeca);
                 }
                 else if (opAcao == 0)
                 {
@@ -201,15 +206,6 @@ namespace GestaoFrotas.ConsoleApp.Views
 
             MostrarMsg("Digite o ID da peça: \n");
             cod = int.Parse(Console.ReadLine());
-
-            /*if (!int.TryParse(cod, out int id))
-            {
-                MostrarMsg("\n=======================================");
-                MostrarMsg(" ERRO - ID INVALIDO");
-                MostrarMsg("=========================================");
-                Pausar();
-                return null;
-            }*/
 
             buscarPeca = _pecaService.buscarPecaID(cod);
 
@@ -279,7 +275,7 @@ namespace GestaoFrotas.ConsoleApp.Views
 
         //---------------------------------------------------------------------------------------------------
 
-        private void ViewEditarPecaConsult(Peca peca)
+        public void ViewEditarPecaConsult(Peca peca)
         {
             LimparTela();
             MostrarMsg("=========================================");
@@ -362,6 +358,39 @@ namespace GestaoFrotas.ConsoleApp.Views
             Console.Clear();
             Console.SetCursorPosition(0, 0);
             Console.Write("\x1b[3J");
+        }
+
+        public void ViewAdicionarEstoque(Peca peca)
+        {
+            LimparTela();
+            MostrarMsg("=========================================");
+            MostrarMsg(" ADICIONAR QUANTIDADE ESTOQUE ");
+            MostrarMsg("=========================================");
+
+            MostrarMsg($"ID: {peca.id}");
+            MostrarMsg($"Nome atual: {peca.nome}");
+            MostrarMsg($"Quantidade atual: {peca.quantidadeEstoque}");
+
+            MostrarMsg("=========================================\n");
+
+            MostrarMsg("Adicionar quantidade: ");
+            string quant = Console.ReadLine();
+            MostrarMsg("\nDeseja confirmar a inclusão ? (S/N)");
+            string resp = Console.ReadLine();
+
+            string msg = _pecaService.AdicionarEstoque(peca, quant, resp);
+            MostrarMsg(msg);
+            Pausar();
+            
+            if (msg == "\nQuantidade acrescentada com sucesso!!")
+            {
+                LimparTela();
+                MostrarMsg("\n===== Estoque atualizado =====");
+                MostrarMsg($"ID: {peca.id}");
+                MostrarMsg($"Nome: {peca.nome}");
+                MostrarMsg($"Quantidade nova: {peca.quantidadeEstoque}");
+                Pausar();
+            }
         }
     }
 }
