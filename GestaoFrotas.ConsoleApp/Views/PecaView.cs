@@ -1,13 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using GestaoFrotas.ConsoleApp.Models;
 using GestaoFrotas.ConsoleApp.Services;
-using GestaoFrotas.ConsoleApp.Views;
-using Microsoft.VisualBasic;
-
 
 namespace GestaoFrotas.ConsoleApp.Views
 {
@@ -34,7 +29,6 @@ namespace GestaoFrotas.ConsoleApp.Views
                 MostrarMsg("0 - Voltar ao Menu Principal");
                 MostrarMsg("");
                 MostrarMsg("Digite sua opção: ");
-
                 string opcao = Console.ReadLine();
 
                 switch (opcao)
@@ -49,7 +43,7 @@ namespace GestaoFrotas.ConsoleApp.Views
                         ViewEditarPeca();
                         break;
                     case "4":
-                        // ExcluirPeca();
+                        excluirPeca();
                         break;
                     case "5":
                         ListarPeca();
@@ -57,11 +51,14 @@ namespace GestaoFrotas.ConsoleApp.Views
                     case "0":
                         return;
                     default:
-                        MostrarMsg("Opção inválida! Tente novamente.");
+                        MostrarMsg("=========================================");
+                        MostrarMsg("OPÇÃO INVALIDA, TENTE NOVAMENTE");
+                        MostrarMsg("=========================================");
                         break;
                 }
             }
         }
+        //---------------------------------------------------------------------------------------------------
         private void ViewCadastrarPeca()
         {
             string msg;
@@ -75,7 +72,8 @@ namespace GestaoFrotas.ConsoleApp.Views
 
             MostrarMsg("Digite o nome: ");
             novaPeca.nome = Console.ReadLine();
-            if (string.IsNullOrEmpty(novaPeca.nome)) return;
+            if (string.IsNullOrEmpty(novaPeca.nome)) 
+                return;
             MostrarMsg("Digite a quantidade: ");
             novaPeca.quantidadeEstoque = Console.ReadLine();
             MostrarMsg("Digite a Descrição: ");
@@ -84,21 +82,18 @@ namespace GestaoFrotas.ConsoleApp.Views
             novaPeca.pontoReposicao = Console.ReadLine();
 
             msg = _pecaService.CadastrarPeca(novaPeca);
-
+            LimparTela();
+            MostrarMsg("=========================================");
             MostrarMsg(msg);
+            MostrarMsg("=========================================");
             Pausar();
         }
-
-        //---------------------------------------------------------------------------------------------------
-
-
+//---------------------------------------------------------------------------------------------------
         private Peca ViewConsultarPeca()
         {
             string cod;
             int opAcao;
             Peca buscarPeca = null;
-            
-
             LimparTela();
             MostrarMsg("=========================================");
             MostrarMsg(" CONSULTAR PEÇA ");
@@ -107,25 +102,32 @@ namespace GestaoFrotas.ConsoleApp.Views
             MostrarMsg("Digite o ID da peça: ");
             cod = Console.ReadLine();
 
-            if (string.IsNullOrWhiteSpace(cod))
+            int erroEntrada;
+            buscarPeca = _pecaService.buscarPecaID(cod, out erroEntrada);
+            if (erroEntrada == 1)
             {
-                MostrarMsg("Nenhum valor digitado");
+                LimparTela();
+                MostrarMsg("=========================================");
+                MostrarMsg("ERRO- NENHUM VALOR DIGITADO!!");
+                MostrarMsg("=========================================");
                 Pausar();
                 return null;
             }
-            if (!int.TryParse(cod, out int id))
+            else if (erroEntrada == 2)
             {
-                MostrarMsg("ID inválido. Digite apenas números.");
+                LimparTela();
+                MostrarMsg("=========================================");
+                MostrarMsg("ERRO- O ID TEM QUE SER UM NÚMERO!!");
+                MostrarMsg("=========================================");
                 Pausar();
                 return null;
             }
-
-            buscarPeca = _pecaService.buscarPecaID(id);
 
             if (buscarPeca == null)
             {
-                MostrarMsg("\n=======================================");
-                MostrarMsg(" ERRO - PEÇA NÃO ENCONTRADA");
+                LimparTela();
+                MostrarMsg("=========================================");
+                MostrarMsg(" ERRO - PEÇA NÃO ENCONTRADA ");
                 MostrarMsg("=========================================");
                 Pausar();
                 return null;
@@ -134,7 +136,7 @@ namespace GestaoFrotas.ConsoleApp.Views
             {
                 LimparTela();
                 MostrarMsg("=========================================");
-                MostrarMsg($"PEÇA ID: {id} ");
+                MostrarMsg($"PEÇA ID: {cod} ");
                 MostrarMsg("=========================================");
 
                 MostrarMsg($"Nome: {buscarPeca.nome}");
@@ -150,69 +152,76 @@ namespace GestaoFrotas.ConsoleApp.Views
 
                 if (!int.TryParse(Console.ReadLine(), out opAcao))
                 {
-                    MostrarMsg("Opção inválida!");
+                    LimparTela();
+                    MostrarMsg("=========================================");
+                    MostrarMsg("OPÇÃO INVALIDA");
+                    MostrarMsg("=========================================");
                     Pausar();
                     return null;
                 }
-
                 if (opAcao == 1)
-                {
                     ViewEditarPecaConsult(buscarPeca);
-                }
                 else if (opAcao == 2)
-                {
-                    //excluirPeca();
-                }
-                else if(opAcao == 3)
-                {
+                    ViewExcluirPecaConsult(buscarPeca);
+                else if (opAcao == 3)
                     ViewAdicionarEstoque(buscarPeca);
-                }
                 else if (opAcao == 0)
-                {
                     return null;
-                }
                 else
                 {
-                    MostrarMsg("Opção inválida.");
+                    LimparTela();
+                    MostrarMsg("=========================================");
+                    MostrarMsg("OPÇÃO INVALIDA");
+                    MostrarMsg("=========================================");
                     Pausar();
                     return null;
                 }
-
                 return buscarPeca;
             }
         }
-
-        
-
 //---------------------------------------------------------------------------------------------------
-
-
         private void ViewEditarPeca()
         {
-            int cod;
+            string cod;
             string novoNome;
             string novaQuant;  
             string novaDesc;
             string novoEstMin;  
             string op;
-
             Peca buscarPeca = null;
-
             LimparTela();
             MostrarMsg("=========================================");
             MostrarMsg(" EDITAR PEÇA ");
             MostrarMsg("=========================================");
 
-
             MostrarMsg("Digite o ID da peça: \n");
-            cod = int.Parse(Console.ReadLine());
+            cod = Console.ReadLine();
 
-            buscarPeca = _pecaService.buscarPecaID(cod);
-
+            int erroEntrada;
+            buscarPeca = _pecaService.buscarPecaID(cod, out erroEntrada);
+            if (erroEntrada == 1)
+            {
+                LimparTela();
+                MostrarMsg("=========================================");
+                MostrarMsg("ERRO- NENHUM VALOR DIGITADO!!");
+                MostrarMsg("=========================================");
+                Pausar();
+                return;
+            }
+            else if (erroEntrada == 2)
+            {
+                LimparTela();
+                MostrarMsg("=========================================");
+                MostrarMsg("ERRO- O ID TEM QUE SER UM NÚMERO!!");
+                MostrarMsg("=========================================");
+                Pausar();
+                return;
+            }
             if (buscarPeca == null)
             {
-                MostrarMsg("\n=======================================");
-                MostrarMsg(" ERRO - PEÇA NÃO ENCONTRADA");
+                LimparTela();
+                MostrarMsg("=========================================");
+                MostrarMsg(" ERRO - PEÇA NÃO ENCONTRADA ");
                 MostrarMsg("=========================================");
                 Pausar();
                 return;
@@ -228,7 +237,6 @@ namespace GestaoFrotas.ConsoleApp.Views
                 MostrarMsg($"Descrição: {buscarPeca.descricao}");
                 MostrarMsg($"Ponto de Reposição: {buscarPeca.pontoReposicao}");
             }
-
             MostrarMsg("\n=======================================");
             MostrarMsg(" NOVOS DADOS ");
             MostrarMsg("=========================================");
@@ -244,37 +252,15 @@ namespace GestaoFrotas.ConsoleApp.Views
 
             MostrarMsg("Confirmar alterações? (S/N)");
             op = Console.ReadLine();
-
-            //_pecaService.editarPeca(buscarPeca, novoNome, novaQuant, novaDesc, novoEstMin, op);
-            string msg = _pecaService.editarPeca(buscarPeca, novoNome, novaQuant, novaDesc, novoEstMin, op);
-
+            string msg = _pecaService.EditarPeca(buscarPeca, novoNome, novaQuant, novaDesc, novoEstMin, op);
+            LimparTela();
+            MostrarMsg("=========================================");
             MostrarMsg(msg);
+            MostrarMsg("=========================================");
             Pausar();
-
-            /*if (op == "S" || op == "s")
-            {
-                
-                MostrarMsg("Dados salvos com sucesso!!");
-                Pausar();
-                return buscarPeca;    
-            }
-            else if (op == "N" || op == "n")
-            {
-                MostrarMsg("Operação cancelada");
-                Pausar();
-                return null;
-            }
-            else
-            {
-                MostrarMsg("Opção invalida");
-                Pausar();
-                return null;
-            }*/
             return;
         }
-
-        //---------------------------------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------------------------------
         public void ViewEditarPecaConsult(Peca peca)
         {
             LimparTela();
@@ -292,48 +278,46 @@ namespace GestaoFrotas.ConsoleApp.Views
             MostrarMsg(" NOVOS DADOS: ");
             MostrarMsg("=========================================\n");
 
-            MostrarMsg("Novo nome: ");
+            MostrarMsg("\nNovo nome: ");
             string nomeNovo = Console.ReadLine();
-
             MostrarMsg("Nova quantidade: ");
             string novaQuantStr = Console.ReadLine();
-
             MostrarMsg("Nova descrição: ");
             string novaDesc = Console.ReadLine();
-
             MostrarMsg("Novo estoque mínimo: ");
             string novoEstMinStr = Console.ReadLine();
-
             MostrarMsg("\nConfirmar alterações? (S/N): ");
             string op = Console.ReadLine();
 
-            _pecaService.editarPeca(peca, nomeNovo, novaQuantStr, novaDesc, novoEstMinStr, op);
-
-            string msg = _pecaService.editarPeca(peca, nomeNovo, novaQuantStr, novaDesc, novoEstMinStr, op);
+            string msg = _pecaService.EditarPeca(peca, nomeNovo, novaQuantStr, novaDesc, novoEstMinStr, op);
+            LimparTela();
+            MostrarMsg("=========================================");
             MostrarMsg(msg);
+            MostrarMsg("=========================================");
             Pausar();
         }
-
+//---------------------------------------------------------------------------------------------------
         public void ListarPeca()
         {
             LimparTela();
             MostrarMsg("=========================================");
             MostrarMsg(" LISTAR PEÇAS ");
             MostrarMsg("=========================================");
-
             List<Peca> pecas = _pecaService.ListarPecas();
 
-            if (pecas.Count == 0)
+            if (pecas == null)
             {
-                MostrarMsg("Nenhuma peça cadastrada");
+                LimparTela();
+                MostrarMsg("=========================================");
+                MostrarMsg(" NENHUMA PEÇA CADASTRADA! ");
+                MostrarMsg("=========================================");
                 Pausar();
                 return;
             }
             else
             {
-                Console.WriteLine($"{"ID",-10} {"Nome",-10} {"Quantidade",-15} {"Descrição",-12} {"Estoque minimo",-12}");
-                Console.WriteLine(new string('-', 70));
-
+                MostrarMsg($"{"ID",-10} {"Nome",-10} {"Quantidade",-15} {"Descrição",-12} {"Estoque minimo",-12}");
+                MostrarMsg(new string('-', 70));
                 foreach (var dadosPecas in pecas)
                 {
                     Console.WriteLine($"{dadosPecas.id,-10} {dadosPecas.nome,-10} {dadosPecas.quantidadeEstoque,-15} {dadosPecas.descricao,-12} {dadosPecas.pontoReposicao,-12}");
@@ -341,25 +325,7 @@ namespace GestaoFrotas.ConsoleApp.Views
                 Pausar();
             }
         }
-        
-        public void MostrarMsg(string mensagem)
-        {
-            Console.WriteLine(mensagem);
-        }
-
-        public void Pausar(string msg = "Pressione qualquer tecla para continuar...")
-        {
-            Console.WriteLine();
-            Console.Write(msg);
-            Console.ReadKey(true);
-        }
-        public void LimparTela()
-        {
-            Console.Clear();
-            Console.SetCursorPosition(0, 0);
-            Console.Write("\x1b[3J");
-        }
-
+        //---------------------------------------------------------------------------------------------------       
         public void ViewAdicionarEstoque(Peca peca)
         {
             LimparTela();
@@ -370,9 +336,7 @@ namespace GestaoFrotas.ConsoleApp.Views
             MostrarMsg($"ID: {peca.id}");
             MostrarMsg($"Nome atual: {peca.nome}");
             MostrarMsg($"Quantidade atual: {peca.quantidadeEstoque}");
-
             MostrarMsg("=========================================\n");
-
             MostrarMsg("Adicionar quantidade: ");
             string quant = Console.ReadLine();
             MostrarMsg("\nDeseja confirmar a inclusão ? (S/N)");
@@ -381,20 +345,122 @@ namespace GestaoFrotas.ConsoleApp.Views
             string msg = _pecaService.AdicionarEstoque(peca, quant, resp);
             MostrarMsg(msg);
             Pausar();
-            
-            if (msg == "\nQuantidade acrescentada com sucesso!!")
+            if (msg == "\nQUANTIDADE ACRESCENTADA COM SUCESSO!!")
             {
                 LimparTela();
-                MostrarMsg("\n===== Estoque atualizado =====");
+                MostrarMsg("\n===== ESTOQUE ATUALIZADO =====");
                 MostrarMsg($"ID: {peca.id}");
                 MostrarMsg($"Nome: {peca.nome}");
                 MostrarMsg($"Quantidade nova: {peca.quantidadeEstoque}");
                 Pausar();
             }
         }
+//---------------------------------------------------------------------------------------------------
+        public void excluirPeca()
+        {
+            string cod;
+            string op;
+            string msg;
+            Peca buscarPeca = null;
+            LimparTela();
+            MostrarMsg("=========================================");
+            MostrarMsg(" EXCLUIR PEÇA ");
+            MostrarMsg("=========================================");
+            MostrarMsg("Para sair deixe o campo em branco e pressione ENTER.");
+
+            MostrarMsg("\nDigite o ID da peça: ");
+            cod = Console.ReadLine();
+            if (string.IsNullOrEmpty(cod))
+                return;
+            int erroEntrada;
+            buscarPeca = _pecaService.buscarPecaID(cod, out erroEntrada);
+            if (erroEntrada == 1)
+            {
+                LimparTela();
+                MostrarMsg("=========================================");
+                MostrarMsg("ERRO- NENHUM VALOR DIGITADO!!");
+                MostrarMsg("=========================================");
+                return;
+            }
+            else if (erroEntrada == 2)
+            {
+                LimparTela();
+                MostrarMsg("=========================================");
+                MostrarMsg("ERRO- O ID TEM QUE SER UM NÚMERO!!");
+                MostrarMsg("=========================================");
+                Pausar();
+                return;
+            }
+            else if (buscarPeca == null)
+            {
+                LimparTela();
+                MostrarMsg("=========================================");
+                MostrarMsg(" ERRO - PEÇA NÃO ENCONTRADA ");
+                MostrarMsg("=========================================");
+                Pausar();
+                return;
+            }
+            else
+            {
+                LimparTela();
+                MostrarMsg("=========================================");
+                MostrarMsg($"PEÇA ID: {cod} ");
+                MostrarMsg("=========================================");
+                MostrarMsg($"Nome: {buscarPeca.nome}");
+                MostrarMsg($"Quantidade em Estoque: {buscarPeca.quantidadeEstoque}");
+                MostrarMsg($"Descrição: {buscarPeca.descricao}");
+                MostrarMsg($"Ponto de Reposição: {buscarPeca.pontoReposicao}");
+
+                MostrarMsg("\nDeseja realmente excluir? (S/N)");
+                op = Console.ReadLine();
+                msg = _pecaService.ExcluirPeca(buscarPeca, op);
+                LimparTela();
+                MostrarMsg(msg);
+                Pausar();
+                return;
+            }
+        }
+//---------------------------------------------------------------------------------------------------
+        public void ViewExcluirPecaConsult(Peca peca)
+        {
+            LimparTela();
+            MostrarMsg("=========================================");
+            MostrarMsg(" EXCLUIR PEÇA ");
+            MostrarMsg("=========================================");
+
+            MostrarMsg($"ID: {peca.id}");
+            MostrarMsg($"Nome atual: {peca.nome}");
+            MostrarMsg($"Quantidade atual: {peca.quantidadeEstoque}");
+            MostrarMsg($"Descrição atual: {peca.descricao}");
+            MostrarMsg($"Estoque mínimo atual: {peca.pontoReposicao}");
+
+            MostrarMsg("\nConfirmar a exclusão? (S/N): ");
+            string op = Console.ReadLine();
+            string msg = _pecaService.ExcluirPeca(peca, op);
+            LimparTela();
+            MostrarMsg("=========================================");
+            MostrarMsg(msg);
+            MostrarMsg("=========================================");
+            Pausar();
+        }
+//---------------------------------------------------------------------------------------------------        
+         public void MostrarMsg(string mensagem)
+        {
+            Console.WriteLine(mensagem);
+        }
+        //---------------------------------------------------------------------------------------------------
+        public void Pausar(string msg = "Pressione qualquer tecla para continuar...")
+        {
+            Console.WriteLine();
+            Console.Write(msg);
+            Console.ReadKey(true);
+        }
+//---------------------------------------------------------------------------------------------------
+        public void LimparTela()
+        {
+            Console.Clear();
+            Console.SetCursorPosition(0, 0);
+            Console.Write("\x1b[3J");
+        }
     }
 }
-
-    
-
-

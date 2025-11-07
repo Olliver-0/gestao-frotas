@@ -2,35 +2,31 @@ using System;
 using System.Linq;                
 using System.Collections.Generic;
 using GestaoFrotas.ConsoleApp.Models;
-using Microsoft.VisualBasic;
-using System.Security.Cryptography.X509Certificates;
-using System.Data;
-using System.Data.Common;
-using System.Linq.Expressions;
+using GestaoFrotas.ConsoleApp.Views;
 
 namespace GestaoFrotas.ConsoleApp.Services
 {
-    public class PecaService 
+    public class PecaService
     {
+        private static PecaView _pecaView = new PecaView();
+        private static int _proximoId = 1;
         private List<Peca> _pecas = new List<Peca>();
-
+        //=====================================================================================
         public string CadastrarPeca(Peca peca)
         {
             int pecaJaCadastrada;
             pecaJaCadastrada = buscaPecaNome(peca.nome);
-            
-            if(pecaJaCadastrada != 0) return $"Peça ja cadastrada - ID {pecaJaCadastrada}";
-            
-            if (!int.TryParse(peca.quantidadeEstoque, out int quantidade))
-                return "Erro: quantidade deve ser um número!";
-            if (quantidade < 0)
-                return "Erro: quantidade não pode ser negativa!";
 
-            if (!int.TryParse(peca.pontoReposicao, out int Rep))
-                return "Erro: A quantidade minima deve ser um número!";
+            if (pecaJaCadastrada != 0) 
+                return $"ERRO- PEÇA JA CADASTRADA - ID {pecaJaCadastrada}";
+            if (!int.TryParse(peca.quantidadeEstoque, out int quantidade))
+                return "ERRO- A QUANTIDADE DEVE SER UM NUMERO!!";
             if (quantidade < 0)
-                return "Erro: A quantidade minima não pode ser negativa!";
-    
+                return "ERRO- A QUANTIDADE NÃO PODE SER NEGATIVA!!";
+            if (!int.TryParse(peca.pontoReposicao, out int Rep))
+                return "ERRO- A QUANTIDADE MINIMA DEVE SER UM NUMERO!!";
+            if (quantidade < 0)
+                return "ERRO- A QUANTIDADE MINIMA NÃO PODE SER NEGATIVA!!";
             if (_pecas.Count == 0)
             {
                 peca.id = 1;
@@ -38,96 +34,119 @@ namespace GestaoFrotas.ConsoleApp.Services
             }
             else
             {
-                peca.id = _pecas.Count + 1;
+                _proximoId++;
+                peca.id = _proximoId;
                 _pecas.Add(peca);
             }
-            return "Peça cadastrada com sucesso!";
+            return "PEÇA CADASTRADA COM SUCESSO!!";
         }
-
-        public Peca buscarPecaID(int id)
+        //=====================================================================================
+        public Peca buscarPecaID(string id, out int entradaInvalida)
         {
+            entradaInvalida = 0;
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                entradaInvalida = 1;
+                return null;
+            }
+            if (!int.TryParse(id, out int ID))
+            {   
+                entradaInvalida = 2;
+                return null;
+            }
             foreach (var peca in _pecas)
             {
-                if (peca.id == id)
-                {
+                if (peca.id == ID)
                     return peca;
-                }
             }
             return null;
         }
-        
+//=====================================================================================          
         public int buscaPecaNome(string nome)
         {
             foreach (var peca in _pecas)
             {
                 if (peca.nome == nome)
-                {
-                    return peca.id;
-                }
+                    return peca.id;  
             }
             return 0;
         }
-
-
-        public string editarPeca(Peca peca, string novoNome, string novaQuant, string novaDesc, string novoEstMin, string op)
+//=====================================================================================
+        public string EditarPeca(Peca peca, string novoNome, string novaQuant, string novaDesc, string novoEstMin, string op)
         {
-            if (string.IsNullOrWhiteSpace(novoNome)) return "O nome não deve estar vazio";
-            if (!int.TryParse(novaQuant, out int novaQuantInt) || novaQuantInt < 0) return "A nova quantidade precisa ser um número maior ou igual a 0";
-            if (!int.TryParse(novoEstMin, out int novoEstMinInt) || novoEstMinInt < 0) return"O novo estoque mínimo precisa ser um número maior ou igual a 0";
+            if (string.IsNullOrWhiteSpace(novoNome))
+                return "ERRO- O NOME NÃO DEVE ESTAR VAZIO!!";
+            int resp = buscaPecaNome(novoNome);
+            int idPeca = peca.id;
+
+            if (resp != 0 && resp != idPeca)
+                return "ERRO — NOME JÁ CADASTRADO";
+            if (!int.TryParse(novaQuant, out int novaQuantInt) || novaQuantInt < 0)
+                return "ERRO- A NOVA QUANTIDADE DEVE SER UM NÚMERO MAIOR OU IGUAL A 0!!";
+            if (!int.TryParse(novoEstMin, out int novoEstMinInt) || novoEstMinInt < 0)
+                return "ERRO- O NOVO ESTOQUE MINIMO DEVE SER UM NÚMERO MAIOR OU IGUAL A 0!!";    
             if (op == "S" || op == "s")
             {
                 peca.nome = novoNome;
                 peca.quantidadeEstoque = novaQuantInt.ToString();
                 peca.descricao = novaDesc;
                 peca.pontoReposicao = novoEstMinInt.ToString();
-
-                return "Peça atualizada com sucesso!";
+                return "PEÇA ATUALIZADA COM SUCESSO!!";
             }
-            else if(op == "N" || op == "n" ) return "\nAlterações canceladas.";
-            else return "\nOpção invalida"; 
+            else if (op == "N" || op == "n") 
+                return "\nALTERAÇÕES CANCELADAS!!";
+            else
+                return "\nOPÇÃO INVÁLIDA";
         }
-        public void excluirPeca()
+
+//=====================================================================================       
+        public string ExcluirPeca(Peca pecaExcluir, string op)
         {
-            Console.WriteLine("Simulação: exclusão de peça ainda não implementada.");
+            if (op.ToUpper() == "S")
+            {
+                bool pecaApagada;
+                pecaApagada = _pecas.Remove(pecaExcluir);
+                if (pecaApagada == true) return "PEÇA EXCLUIDA COM SUCESSO!!";
+                else
+                    return "ERRO- PEÇA NÃO EXCLUIDA!!";
+            }
+            else if (op.ToUpper() == "N")
+                return "OPERAÇÃO CANCELADA!!";
+            else
+                return "ERRO- OPÇÃO INVÁLIDA!!";
+                
         }
+
+        //=====================================================================================       
 
         public List<Peca> ListarPecas()
         {
-            return _pecas.ToList();
+            if (_pecas.Count == 0)
+                return null;
+            else
+                return _pecas.ToList();
+            
         }
+        
+//=====================================================================================
+
         public string AdicionarEstoque(Peca peca, string quant, string op)
         {
             if (op == "S" || op == "s")
             {
                 if (!int.TryParse(quant, out int Quant))
-                    return "Erro: A quantidade acrescentada deve ser um número!";
+                    return "ERRO- A QUANTIDADE ACRESCENTADA DEVE SER UM NÚMERO!!";
                 if (Quant < 0)
-                    return "Erro: A quantidade acrescentada não pode ser negativa!";
-
+                    return "ERRO- A QUANTIDADE ACRESCENTADA NÃO PODE SER NEGATIVA!!";
                 int EstAnt = int.Parse(peca.quantidadeEstoque);
                 EstAnt += Quant;
                 peca.quantidadeEstoque = EstAnt.ToString();
-                
-                return "\nQuantidade acrescentada com sucesso!!";   
+                return "\nQUANTIDADE ACRESCENTADA COM SUCESSO!!";   
             }
             if (op == "N" || op == "n")
-            {
-                return "\ninclusão cancelada!!";
-            }
+                return "\nINCLUSÃO CANCELADA!!";
+            
             return null;
         }  
-            /*if (!int.TryParse(quant, out int Quant))
-                return "Erro: A quantidade acrescentada deve ser um número!";
-            if (Quant < 0)
-                return "Erro: A quantidade acrescentada não pode ser negativa!";
-
-            int EstAnt = int.Parse(peca.quantidadeEstoque);
-            EstAnt += Quant;
-            peca.quantidadeEstoque = EstAnt.ToString();
-            
-            return "Quantidade acrescentada com sucesso!!";*/
-        }
     }
-
-
-
+}
