@@ -1,4 +1,4 @@
-using System; // Necessário para o DateTime
+using System; 
 
 namespace GestaoFrotas.ConsoleApp.Models
 {
@@ -6,38 +6,34 @@ namespace GestaoFrotas.ConsoleApp.Models
   {
     public int id;
     public DateTime dataAbertura;
-
-    // --- Atributos Opcionais Corrigidos ---
-    // Usamos '?' para permitir que esses campos sejam nulos,
-    // pois uma OS recém-criada não tem esses dados.
-    public DateTime? dataFechamento;
     public double hodometroEntrada;
-    public double? hodometroSaida;
-    // ---
-
     public string tipo;
     public int veiculoId;
     public int motoristaId;
-
-    // --- Atributo Opcional Corrigido ---
-    public int? mecanicoId;
-    // ---
-
-    /**
-    * Finaliza a Ordem de Serviço, registrando a data/hora
-    * e a quilometragem de saída (RN-005).
-    */
-    public void fecharOS(double hodometroSaida)
+    public int? mecanicoId; 
+    public string descricao; 
+    public string oficina; 
+    public string status;
+    public double? custoFinal; 
+    public DateTime? dataFechamento; 
+    public double? hodometroSaida;
+    
+    public string observacoesFechamento; 
+    public bool documentosValidados;
+    public void fecharOS(double custo, DateTime dataConclusao, string observacoes, double hodometroSaida)
     {
-      // Verifica se a OS já não foi fechada (para evitar fechar 2x)
-      if (this.dataFechamento == null)
+      if (this.status == "Aberta")
       {
-        // Registra o momento exato do fechamento
-        this.dataFechamento = DateTime.Now;
-
-        // Registra o hodômetro de saída
-        this.hodometroSaida = hodometroSaida;
+        this.status = "Finalizada";
+        this.dataFechamento = dataConclusao;
+        this.custoFinal = custo;
+        this.observacoesFechamento = observacoes;
+        this.hodometroSaida = hodometroSaida; 
       }
+    }
+    public void validarDocumentos()
+    {
+      this.documentosValidados = true;
     }
   }
 }

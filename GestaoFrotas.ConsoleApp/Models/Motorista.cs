@@ -1,4 +1,4 @@
-using System; // Adicionamos isso para ter acesso ao "DateTime"
+using System; 
 
 namespace GestaoFrotas.ConsoleApp.Models
 {
@@ -6,27 +6,26 @@ namespace GestaoFrotas.ConsoleApp.Models
   {
     public string cnh;
     public DateTime validadeCNH;
+    public string categoriaCNH;
+    public string telefone;
+    public string endereco;
+    public string status; 
+    public string cpf
+    {
+      get { return this.login; }
+      set { this.login = value; }
+    }
 
-    /**
-    * Verifica se a data de validade da CNH deste motorista
-    * é anterior à data de hoje (RN-002).
-    */
     public bool isCnhVencida()
     {
-      // "DateTime.Today" pega a data atual (ex: 28/10/2025)
-      // Se a data de validade for MENOR (anterior) a hoje, 
-      // significa que a CNH está vencida.
       if (this.validadeCNH < DateTime.Today)
       {
-        return true; // Sim, está vencida
+        return true; 
       }
       else
       {
-        return false; // Não, está válida
+        return false; 
       }
-
-      // Uma forma mais curta de escrever esse 'if' seria:
-      // return this.validadeCNH < DateTime.Today;
     }
   }
 }
