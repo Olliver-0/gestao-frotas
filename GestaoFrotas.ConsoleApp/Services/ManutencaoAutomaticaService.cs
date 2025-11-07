@@ -29,8 +29,6 @@ namespace GestaoFrotas.ConsoleApp.Services
         _manutencoes.Add(new ManutencaoAutomatica(105, v3_id, "Revisão de Freios", "Agendada", new DateTime(2025, 11, 22), "Freios Bons"));
       }
     }
-
-    // Fluxo Principal: Agendar
     public List<ManutencaoAutomatica> ListarPendentes()
     {
       return _manutencoes.Where(m => m.status == "Pendente").ToList();
@@ -48,8 +46,6 @@ namespace GestaoFrotas.ConsoleApp.Services
       manutencao.status = "Agendada"; 
       return $"Manutenção automática ({manutencao.servico}) agendada com sucesso para {data:dd/MM/yyyy} na {oficina}."; 
     }
-
-    // Fluxo A1: Confirmar
     public List<ManutencaoAutomatica> ListarAgendadasParaConfirmacao()
     {
         return _manutencoes.Where(m => m.status == "Agendada").ToList();
@@ -60,8 +56,6 @@ namespace GestaoFrotas.ConsoleApp.Services
         manutencao.status = "Confirmada"; 
         return $"A agenda [ID: {manutencao.id}] foi confirmada."; 
     }
-
-    // Fluxo A2: Cancelar
     public List<ManutencaoAutomatica> ListarAtivas()
     {
         return _manutencoes.Where(m => m.status == "Agendada" || m.status == "Confirmada").ToList();
@@ -72,8 +66,6 @@ namespace GestaoFrotas.ConsoleApp.Services
         manutencao.status = "Cancelada"; 
         return "Agendamento cancelado com sucesso."; 
     }
-    
-    // Fluxo A3: Pesquisar
     public List<ManutencaoAutomatica> Pesquisar(string criterio)
     {
         return _manutencoes.Where(m => 
@@ -82,8 +74,6 @@ namespace GestaoFrotas.ConsoleApp.Services
             (m.servico != null && m.servico.Contains(criterio, StringComparison.OrdinalIgnoreCase))
         ).ToList();
     }
-
-    // Fluxo A4: Excluir
     public string Excluir(ManutencaoAutomatica manutencao)
     {
         if(manutencao.status == "Agendada" || manutencao.status == "Confirmada")
@@ -91,7 +81,7 @@ namespace GestaoFrotas.ConsoleApp.Services
             return "Erro: Não é possível excluir uma manutenção ativa. Use 'Cancelar'.";
         }
         
-        _manutencoes.Remove(manutencao); 
+        _manutencoes.Remove(manutencao);
         return "Agenda removida com sucesso."; 
     }
   }

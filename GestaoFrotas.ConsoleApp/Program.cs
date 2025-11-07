@@ -30,7 +30,10 @@ namespace GestaoFrotas.ConsoleApp
 
     // Views ADICIONADAS (RF02, RF05, RF06/07)
     private static OsView _osView = new OsView(_osService, _veiculoService); 
-    private static MotoristaView _motoristaView = new MotoristaView(_motoristaService);
+    
+    // MotoristaView agora precisa do OsService para a verificação de exclusão
+    private static MotoristaView _motoristaView = new MotoristaView(_motoristaService, _osService);
+    
     private static ManutencaoAutomaticaView _manutencaoAutomaticaView = new ManutencaoAutomaticaView(_manutencaoAutomaticaService, _veiculoService);
     
 

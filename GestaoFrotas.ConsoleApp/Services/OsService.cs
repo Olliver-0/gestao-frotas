@@ -11,7 +11,7 @@ namespace GestaoFrotas.ConsoleApp.Services
     private static int _proximoId = 123; 
 
     private readonly VeiculoService _veiculoService;
-    private readonly MotoristaService _motoristaService; // Adicionado para RN-002
+    private readonly MotoristaService _motoristaService;
 
     public OsService(VeiculoService veiculoService, MotoristaService motoristaService)
     {
@@ -33,7 +33,6 @@ namespace GestaoFrotas.ConsoleApp.Services
         return "Erro: Motorista não localizado.";
       }
 
-      // --- Implementação da RN-002 ---
       if (veiculo.isLicenciamentoVencido())
       {
         return $"Erro: Criação de OS bloqueada. O licenciamento do veículo {veiculo.placa} está vencido.";
@@ -42,7 +41,6 @@ namespace GestaoFrotas.ConsoleApp.Services
       {
           return $"Erro: Criação de OS bloqueada. A CNH do motorista {motorista.nome} está vencida.";
       }
-      // --- Fim da RN-002 ---
 
       os.id = _proximoId++;
       os.veiculoId = veiculo.idFrota;
@@ -50,7 +48,7 @@ namespace GestaoFrotas.ConsoleApp.Services
       os.dataAbertura = DateTime.Now;
       os.status = "Aberta"; 
       os.documentosValidados = false;
-      os.hodometroEntrada = veiculo.hodometroAtual; // RN-005
+      os.hodometroEntrada = veiculo.hodometroAtual;
 
       _ordensDeServico.Add(os);
 
@@ -86,13 +84,12 @@ namespace GestaoFrotas.ConsoleApp.Services
         return "Erro: Não é possível excluir uma OS já finalizada.";
       }
 
-      os.status = "Excluída"; 
+      os.status = "Excluída";
       return $"OS [ID {id}] excluída com sucesso."; 
     }
     
     public string Finalizar(OrdemDeServico os, double custoFinal, DateTime dataConclusao, string observacoes, double hodometroSaida)
     {
-      // Regra RF07
       if (!os.documentosValidados)
       {
         return "Erro: Os documentos precisam ser validados (Etapa 1/2) antes de finalizar a OS.";
@@ -103,12 +100,10 @@ namespace GestaoFrotas.ConsoleApp.Services
           return $"Erro: OS com status '{os.status}' não pode ser finalizada.";
       }
 
-      // --- Implementação da RN-005 (Validação) ---
       if (hodometroSaida < os.hodometroEntrada)
       {
           return $"Erro: Hodômetro de saída ({hodometroSaida} Km) não pode ser menor que o hodômetro de entrada ({os.hodometroEntrada} Km).";
       }
-      // --- Fim da RN-005 ---
 
       os.fecharOS(custoFinal, dataConclusao, observacoes, hodometroSaida); 
       
@@ -119,6 +114,13 @@ namespace GestaoFrotas.ConsoleApp.Services
       }
       
       return $"OS [ID {os.id}] foi finalizada e validada com sucesso."; 
+    }
+
+    public List<OrdemDeServico> ListarPorMotoristaId(int motoristaId)
+    {
+        return _ordensDeServico
+            .Where(os => os.motoristaId == motoristaId && os.status != "Excluída")
+            .ToList();
     }
   }
 }

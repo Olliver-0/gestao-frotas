@@ -1,4 +1,4 @@
-using System; // Necessário para o DateTime
+using System;
 
 namespace GestaoFrotas.ConsoleApp.Models
 {
@@ -12,10 +12,6 @@ namespace GestaoFrotas.ConsoleApp.Models
     public int veiculoId;
     public int motoristaId;
 
-    /**
-    * Atualiza este checklist com as respostas do motorista
-    * e registra a data/hora e a quilometragem atuais (RN-007).
-    */
     public void preencherRepostas(double hodometroAtual, bool respostaPneus, bool respostaOleo)
     {
       // Registra o momento exato do preenchimento
@@ -27,9 +23,6 @@ namespace GestaoFrotas.ConsoleApp.Models
       // Salva as respostas do check-list
       this.pneusOk = respostaPneus;
       this.oleoOk = respostaOleo;
-
-      // (Se você adicionar mais itens ao checklist, 
-      // basta adicionar mais parâmetros a este método)
     }
   }
 }

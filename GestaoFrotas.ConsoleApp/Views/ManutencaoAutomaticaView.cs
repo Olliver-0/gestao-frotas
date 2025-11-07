@@ -20,6 +20,7 @@ namespace GestaoFrotas.ConsoleApp.Views
 
     public void ExibirMenuManutencao()
     {
+      // Simula a detecção de pendências
       int pendentes = _manutencaoService.ListarPendentes().Count + _manutencaoService.ListarAgendadasParaConfirmacao().Count;
 
       while (true)
@@ -70,6 +71,7 @@ namespace GestaoFrotas.ConsoleApp.Views
       }
     }
     
+    // Fluxo Principal (RF05)
     private void AgendarManutencao()
     {
       Console.Clear();
@@ -131,6 +133,7 @@ namespace GestaoFrotas.ConsoleApp.Views
       PausarEVoltar("Pressione qualquer tecla para retornar ao menu 'Gerenciar Manutenções'..."); 
     }
     
+    // Fluxo A1
     private void ConfirmarManutencao()
     {
       Console.Clear();
@@ -184,6 +187,7 @@ namespace GestaoFrotas.ConsoleApp.Views
       PausarEVoltar("Pressione qualquer tecla para retornar ao menu 'Gerenciar Manutenções'..."); 
     }
     
+    // Fluxo A2
     private void CancelarManutencao()
     {
       Console.Clear();
@@ -230,6 +234,7 @@ namespace GestaoFrotas.ConsoleApp.Views
       PausarEVoltar("Pressione qualquer tecla para retornar ao menu 'Gerenciar Manutenções'..."); 
     }
     
+    // Fluxo A3 e A4
     private void PesquisarManutencao()
     {
       Console.Clear();
@@ -256,6 +261,7 @@ namespace GestaoFrotas.ConsoleApp.Views
           Console.WriteLine($" [ID: {m.id}] Veículo: {placa} | Data: {m.data:dd/MM/yyyy} | Status: {m.status}");
       }
       
+      // Fluxo A4
       Console.WriteLine("\nOpções:");
       Console.WriteLine("(1) Excluir Registro de Agenda (A4)");
       Console.WriteLine("(2) Voltar ao Menu");
@@ -267,6 +273,7 @@ namespace GestaoFrotas.ConsoleApp.Views
       }
     }
     
+    // Fluxo A4
     private void ProcessarExclusao(List<ManutencaoAutomatica> resultados)
     {
         Console.WriteLine("\n=========================================");

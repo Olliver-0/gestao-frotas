@@ -148,6 +148,7 @@ namespace GestaoFrotas.ConsoleApp.Views
         Console.WriteLine("\n[out] Exibindo resultados..."); 
         ExibirDadosDaOs(os);
 
+        // Opções após consultar (Fluxo A1)
         Console.WriteLine("\n(1) Finalizar esta OS"); 
         Console.WriteLine("(2) Excluir esta OS");
         Console.WriteLine("(3) Voltar");
@@ -157,9 +158,11 @@ namespace GestaoFrotas.ConsoleApp.Views
         switch (opcao)
         {
             case "1":
+                // Inicia fluxo RF07 + RF06
                 FinalizarOs(os);
                 break;
             case "2":
+                // Inicia fluxo A2
                 ProcessarExclusao(os);
                 break;
             case "3":
@@ -201,6 +204,7 @@ namespace GestaoFrotas.ConsoleApp.Views
         PausarEVoltar();
     }
 
+    // Fluxo A3 (RF06) + RF07
     private void FinalizarOs(OrdemDeServico os)
     {
       if (os.status != "Aberta")
@@ -216,6 +220,7 @@ namespace GestaoFrotas.ConsoleApp.Views
 
           if (!validacaoOk)
           {
+              // Fluxo de Exceção A1 (RF07)
               Console.WriteLine("\n=========================================");
               Console.WriteLine(" FINALIZAÇÃO CANCELADA.");
               Console.WriteLine(" Os documentos não foram validados."); 
@@ -234,7 +239,7 @@ namespace GestaoFrotas.ConsoleApp.Views
           DateTime dataConclusao = LerData("Digite a Data de Conclusão (dd/mm/aaaa): "); 
           
           // Adicionado para RN-005
-          double hodometroSaida = LerDouble($"Digite o Hodômetro de Saída (Km) (Atual: {os.hodometroEntrada}): ");
+          double hodometroSaida = LerDouble($"Digite o Hodômetro de Saída (Km) (Mínimo: {os.hodometroEntrada}): ");
 
           Console.Write("Digite alguma observação de fechamento (opcional): "); 
           string observacoes = Console.ReadLine();
@@ -268,7 +273,6 @@ namespace GestaoFrotas.ConsoleApp.Views
       }
     }
 
-    // Sub-fluxo <<include>> RF07
     private bool ExecutarValidacaoRF07(OrdemDeServico os)
     {
       Console.Clear();
@@ -284,7 +288,7 @@ namespace GestaoFrotas.ConsoleApp.Views
         string path = Console.ReadLine();
         
         if (path.Equals("0", StringComparison.OrdinalIgnoreCase))
-            return false; 
+            return false; // Cancela fluxo
 
         if (path.Equals("N", StringComparison.OrdinalIgnoreCase)) 
             break; 
@@ -292,13 +296,14 @@ namespace GestaoFrotas.ConsoleApp.Views
         Console.WriteLine($"[out] Arquivo [{path.Split('\\').Last()}] anexado com sucesso."); 
       }
       
+      // Validação
       if(ConfirmarOperacao("\n[] Documentos anexados foram conferidos e validados? (S/N): "))
       {
           os.validarDocumentos(); 
-          return true;
+          return true; // Sucesso
       }
 
-      return false; 
+      return false;
     }
 
     // Fluxo A2
@@ -348,7 +353,6 @@ namespace GestaoFrotas.ConsoleApp.Views
       }
     }
 
-    // --- Métodos Auxiliares (Helpers) ---
     private void PausarEVoltar(string mensagem = "Pressione qualquer tecla para voltar...")
     {
       Console.WriteLine();

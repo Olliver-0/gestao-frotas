@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using GestaoFrotas.ConsoleApp.Models;
 using GestaoFrotas.ConsoleApp.Services;
 
@@ -9,10 +10,11 @@ namespace GestaoFrotas.ConsoleApp.Views
   public class MotoristaView
   {
     private readonly MotoristaService _motoristaService;
-
-    public MotoristaView(MotoristaService motoristaService)
+    private readonly OsService _osService;
+    public MotoristaView(MotoristaService motoristaService, OsService osService)
     {
       _motoristaService = motoristaService;
+      _osService = osService; 
     }
 
     public void ExibirMenuMotoristas()
@@ -125,7 +127,7 @@ namespace GestaoFrotas.ConsoleApp.Views
     {
       Console.Clear();
       Console.WriteLine("=========================================");
-      Console.WriteLine(" CONSULTAR MOTORISTA (RF02)"); 
+      Console.WriteLine(" CONSULTAR MOTORista (RF02)"); 
       Console.WriteLine("=========================================");
 
       string cpf = LerString("Digite o CPF do motorista: "); 
@@ -135,7 +137,6 @@ namespace GestaoFrotas.ConsoleApp.Views
       {
         Console.WriteLine("\n[out] Exibindo resultados..."); 
         ExibirDadosDoMotorista(motorista);
-
         Console.WriteLine("\n(1) Excluir Motorista");
         Console.WriteLine("(2) Voltar");
         Console.Write("Digite sua opção: ");
@@ -232,7 +233,6 @@ namespace GestaoFrotas.ConsoleApp.Views
         ProcessarExclusao(motorista);
         PausarEVoltar("Pressione qualquer tecla para retornar ao menu 'Gerenciar Motoristas'...");
     }
-
     private void ProcessarExclusao(Motorista motorista)
     {
         Console.WriteLine($"\n--- Dados do Motorista ---");
@@ -241,6 +241,17 @@ namespace GestaoFrotas.ConsoleApp.Views
         
         if (ConfirmarOperacao($"Deseja realmente excluir o motorista {motorista.nome} (CPF {motorista.cpf})? (S/N): "))
         {
+            List<OrdemDeServico> osVinculadas = _osService.ListarPorMotoristaId(motorista.id);
+
+            if (osVinculadas.Any())
+            {
+                Console.WriteLine("\n=========================================");
+                Console.WriteLine(" ERRO: EXCLUSÃO BLOQUEADA");
+                Console.WriteLine($" Este motorista não pode ser excluído pois está vinculado a {osVinculadas.Count} Ordem(ns) de Serviço.");
+                Console.WriteLine($" (Ex: OS ID {osVinculadas.First().id})");
+                Console.WriteLine("=========================================");
+                return; 
+            }
             string resultado = _motoristaService.Excluir(motorista.cpf);
             Console.WriteLine($"\n[out] {resultado}"); 
         }
@@ -287,8 +298,6 @@ namespace GestaoFrotas.ConsoleApp.Views
       Console.WriteLine($"Endereço: {m.endereco}");
       Console.WriteLine($"Status: {m.status}"); 
     }
-
-    // --- Métodos Auxiliares (Helpers) ---
 
     private void PausarEVoltar(string mensagem = "Pressione qualquer tecla para voltar...")
     {

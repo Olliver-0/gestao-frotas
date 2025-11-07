@@ -1,4 +1,4 @@
-using System; // Adicionamos isso para ter acesso a classes do sistema
+using System;
 
 namespace GestaoFrotas.ConsoleApp.Models
 {
@@ -9,33 +9,19 @@ namespace GestaoFrotas.ConsoleApp.Models
     public string login;
     public string senha;
     public string perfil;
-
-    /**
-    * Verifica se a senha fornecida pelo usuário é a mesma senha
-    * que está salva neste objeto.
-    */
     public bool autenticar(string senhaFornecida)
     {
-      // Compara a senha salva no 'this.senha' com a senha fornecida
       if (this.senha == senhaFornecida)
       {
-        return true; // As senhas batem
+        return true;
       }
       else
       {
-        return false; // As senhas são diferentes
+        return false; 
       }
-
-      // Uma forma mais curta de fazer o 'if/else' acima seria:
-      // return this.senha == senhaFornecida;
     }
-
-    /**
-    * Atualiza a senha atual do usuário para uma nova senha.
-    */
     public void alterarSenha(string novaSenha)
     {
-      // Simplesmente atribui o novo valor ao campo 'senha'
       this.senha = novaSenha;
     }
   }

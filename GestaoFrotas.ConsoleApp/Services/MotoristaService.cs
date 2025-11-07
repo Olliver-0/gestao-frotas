@@ -12,10 +12,9 @@ namespace GestaoFrotas.ConsoleApp.Services
 
     public string Adicionar(Motorista motorista)
     {
-      // RN: O sistema deve impedir o cadastro de motoristas com CPF duplicado.
       if (_motoristas.Any(m => m.login == motorista.login))
       {
-        return "Erro: CPF já cadastrado. Não é possível duplicar o motorista."; 
+        return "Erro: CPF já cadastrado. Não é possível duplicar o motorista.";
       }
 
       motorista.id = _proximoId++;
@@ -27,12 +26,12 @@ namespace GestaoFrotas.ConsoleApp.Services
 
     public Motorista BuscarPorCpf(string cpf)
     {
-      return _motoristas.FirstOrDefault(m => m.login == cpf && m.status != "Excluído");
+      return _motoristas.FirstOrDefault(m => m.login == cpf);
     }
 
     public List<Motorista> ListarTodos()
     {
-      return _motoristas.Where(m => m.status != "Excluído").ToList();
+      return _motoristas.ToList();
     }
 
     public string Atualizar(string cpfBusca, string novoTelefone, string novoEndereco, string novaCategoriaCNH)
@@ -49,18 +48,18 @@ namespace GestaoFrotas.ConsoleApp.Services
 
       return "Alteração realizada com sucesso.";
     }
-
     public string Excluir(string cpf)
     {
-      Motorista motorista = BuscarPorCpf(cpf);
+      Motorista motorista = BuscarPorCpf(cpf); 
+      
       if (motorista == null)
       {
         return "Erro: Motorista não encontrado.";
       }
       
-      motorista.status = "Excluído"; 
+      _motoristas.Remove(motorista); 
 
       return "Motorista excluído com sucesso.";
     }
   }
-}   
+}
