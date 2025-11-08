@@ -1,4 +1,4 @@
-using System; 
+using System;
 
 namespace GestaoFrotas.ConsoleApp.Models
 {
@@ -9,22 +9,21 @@ namespace GestaoFrotas.ConsoleApp.Models
     public string categoriaCNH;
     public string telefone;
     public string endereco;
-    public string status; 
+    public string status;
     public string cpf
     {
       get { return this.login; }
       set { this.login = value; }
     }
-
     public bool isCnhVencida()
     {
       if (this.validadeCNH < DateTime.Today)
       {
-        return true; 
+        return true;
       }
       else
       {
-        return false; 
+        return false;
       }
     }
   }

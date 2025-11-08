@@ -20,16 +20,15 @@ namespace GestaoFrotas.ConsoleApp
     
     private static ManutencaoAutomaticaService _manutencaoAutomaticaService = new ManutencaoAutomaticaService(_veiculoService);
     // private static PecaService _pecaService = new PecaService();
-
-
     // --- Instâncias de Views ---
     private static VeiculoView _veiculoView = new VeiculoView(_veiculoService);
     private static AbastecimentoView _abastecimentoView = new AbastecimentoView(_abastecimentoService, _veiculoService);
     private static ChecklistView _checklistView = new ChecklistView(_checklistService, _veiculoService);
+
+    private static PecaView _pecaView = new PecaView();
     // private static PecaView _pecaView = new PecaView();
 
     // Views ADICIONADAS (RF02, RF05, RF06/07)
-    private static OsView _osView = new OsView(_osService, _veiculoService); 
     
     // MotoristaView agora precisa do OsService para a verificação de exclusão
     private static MotoristaView _motoristaView = new MotoristaView(_motoristaService, _osService);
@@ -72,12 +71,10 @@ namespace GestaoFrotas.ConsoleApp
             _veiculoView.ExibirMenuVeiculos();
             break;
           case "2":
-            // _pecaView.ExibirMenuPecas(); 
-            Console.WriteLine("Módulo de Peças em construção...");
-            Console.ReadKey();
+            _pecaView.ViewExibirMenuPeca();
             break;
           case "3":
-            _osView.ExibirMenuOS(); 
+            ///_osView.ViewExibirMenuOS();
             break;
           case "4":
             _abastecimentoView.RegistrarAbastecimento();

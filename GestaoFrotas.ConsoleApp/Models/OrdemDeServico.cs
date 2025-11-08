@@ -37,3 +37,4 @@ namespace GestaoFrotas.ConsoleApp.Models
     }
   }
 }
+
