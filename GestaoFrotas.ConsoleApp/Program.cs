@@ -9,15 +9,15 @@ using GestaoFrotas.ConsoleApp.Views;
 namespace GestaoFrotas.ConsoleApp
 {
   class Program
-  {
-    // Aqui é onde vocês vão instanciar as Views (Telas)
-    // (Por enquanto, elas estão comentadas pois os arquivos ainda não existem)
-
+{
     private static VeiculoService _veiculoService = new VeiculoService();
     private static AbastecimentoService _abastecimentoService = new AbastecimentoService();
     private static ChecklistService _checklistService = new ChecklistService();
+    private static OsService _osService = new OsService();
+    private static PecaService _pecaService = new PecaService();
 
     private static VeiculoView _veiculoView = new VeiculoView(_veiculoService);
+    private static OsView _osView = new OsView();
     private static AbastecimentoView _abastecimentoView = new AbastecimentoView(_abastecimentoService, _veiculoService);
     private static ChecklistView _checklistView = new ChecklistView(_checklistService, _veiculoService);
 
@@ -57,14 +57,10 @@ namespace GestaoFrotas.ConsoleApp
             _veiculoView.ExibirMenuVeiculos();
             break;
           case "2":
-            // _pecaView.ExibirMenuPecas(); // Pessoa 3 vai descomentar
             _pecaView.ViewExibirMenuPeca();
-            Console.ReadKey();
             break;
           case "3":
-            // _osView.ExibirMenuOS(); // Pessoa 2 vai descomentar
-            Console.WriteLine("Módulo de Manutenção em construção...");
-            Console.ReadKey();
+            _osView.ViewExibirMenuOS();
             break;
           case "4":
             _abastecimentoView.RegistrarAbastecimento();

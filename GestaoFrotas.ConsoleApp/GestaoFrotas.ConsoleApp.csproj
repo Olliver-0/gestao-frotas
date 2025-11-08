@@ -4,10 +4,5 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-
-    <!-- desativa geração automática de AssemblyInfo -->
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <!-- desativa a geração do TargetFrameworkAttribute -->
-    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
 </Project>
