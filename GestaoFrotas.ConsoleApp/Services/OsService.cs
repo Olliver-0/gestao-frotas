@@ -13,7 +13,7 @@ namespace GestaoFrotas.ConsoleApp.Services
         private List<OrdemDeServico> _ordemDeServico = new List<OrdemDeServico>();
         public string CadastrarOS(OrdemDeServico OsService)
         {
-            // int pecaJaCadastrada;
+            //int pecaJaCadastrada;
             // pecaJaCadastrada = buscaPecaNome(peca.nome);
 
             /*if (pecaJaCadastrada != 0)
