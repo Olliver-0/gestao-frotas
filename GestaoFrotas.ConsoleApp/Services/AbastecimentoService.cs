@@ -9,6 +9,11 @@ namespace GestaoFrotas.ConsoleApp.Services
   {
     private static readonly List<Abastecimento> _abastecimentos = new List<Abastecimento>();
 
+    public List<Abastecimento> ListarTodos()
+    {
+      return _abastecimentos;
+    }
+
     public string Adicionar(Abastecimento novoAbastecimento, Veiculo veiculo)
     {
       if (novoAbastecimento.litrosAbastecidos <= 0 || novoAbastecimento.valorTotal <= 0)
@@ -36,20 +41,15 @@ namespace GestaoFrotas.ConsoleApp.Services
         alertaDesvio = VerificarDesvioConsumo(consumoCalculado.Value, mediaHistorica, veiculo);
       }
 
+      novoAbastecimento.id = _abastecimentos.Count > 0 ? _abastecimentos.Max(a => a.id) + 1 : 1;
       _abastecimentos.Add(novoAbastecimento);
 
-      string mensagemSucesso = "Abastecimento registrado com sucesso.";
-      if (consumoCalculado.HasValue)
+      if (alertaDesvio != null)
       {
-        mensagemSucesso += $"\nConsumo (RF12) desde o último registro: {consumoCalculado.Value:F2} Km/L.";
+        return $"Sucesso: Abastecimento registrado. ALERTA: {alertaDesvio}";
       }
 
-      if (!string.IsNullOrEmpty(alertaDesvio))
-      {
-        mensagemSucesso += $"\n{alertaDesvio}";
-      }
-
-      return mensagemSucesso;
+      return "Sucesso: Abastecimento registrado.";
     }
 
     private Abastecimento GetUltimoAbastecimento(Veiculo veiculo)
@@ -105,17 +105,15 @@ namespace GestaoFrotas.ConsoleApp.Services
       }
 
       double media = mediaHistorica.Value;
+      double desvio = Math.Abs(consumoCalculado - media) / media;
 
-      double limitePiora = media * 0.85;
-
-      if (consumoCalculado < limitePiora)
+      if (desvio > 0.15)
       {
-        double percentualPiora = (1 - (consumoCalculado / media)) * 100;
-
-        return $"[ALERTA - RF13] Desvio de consumo detectado!\nConsumo {percentualPiora:F1}% pior que a média histórica do veículo ({media:F2} Km/L).";
+        return $"Consumo de {consumoCalculado:F2} km/l é {desvio:P2} fora da média histórica ({media:F2} km/l).";
       }
 
       return null;
     }
   }
 }
+

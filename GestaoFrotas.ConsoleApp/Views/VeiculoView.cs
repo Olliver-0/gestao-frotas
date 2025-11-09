@@ -9,10 +9,11 @@ namespace GestaoFrotas.ConsoleApp.Views
   public class VeiculoView
   {
     private readonly VeiculoService _veiculoService;
-
-    public VeiculoView(VeiculoService veiculoService)
+    private readonly MotoristaService _motoristaService;
+    public VeiculoView(VeiculoService veiculoService, MotoristaService motoristaService)
     {
       _veiculoService = veiculoService;
+      _motoristaService = motoristaService;
     }
 
     public void ExibirMenuVeiculos()
@@ -152,58 +153,57 @@ namespace GestaoFrotas.ConsoleApp.Views
 
       try
       {
-        // 2. Criar um objeto "clone" com os dados para enviar ao Service
         Veiculo veiculoAtualizado = new Veiculo
         {
           idFrota = veiculoOriginal.idFrota,
-          placa = veiculoOriginal.placa, // Placa não muda
-          hodometroInicial = veiculoOriginal.hodometroInicial, // Não muda
-          dataAquisicao = veiculoOriginal.dataAquisicao, // Não muda
+          placa = veiculoOriginal.placa,
+          hodometroInicial = veiculoOriginal.hodometroInicial,
+          dataAquisicao = veiculoOriginal.dataAquisicao,
 
-          // Pega os dados originais como padrão
           status = veiculoOriginal.status,
           hodometroAtual = veiculoOriginal.hodometroAtual,
           vencimentoLicenciamento = veiculoOriginal.vencimentoLicenciamento,
           capacidadeCarga = veiculoOriginal.capacidadeCarga
         };
 
-
-        // 3. Perguntar os campos editáveis (implementa Tela 1.3.2 e 1.3.3)
-
-        // Status
         Console.Write($"Status (Atual: {veiculoOriginal.status}): ");
         string novoStatus = Console.ReadLine();
         if (!string.IsNullOrEmpty(novoStatus))
           veiculoAtualizado.status = novoStatus;
 
-        // Vencimento Licenciamento
-        veiculoAtualizado.vencimentoLicenciamento = LerData(
-            $"Venc. Licenciamento (Atual: {veiculoOriginal.vencimentoLicenciamento:dd/MM/yyyy}): ",
-            true // Permite entrada em branco
+          veiculoAtualizado.vencimentoLicenciamento = LerData(
+      $"Venc. Licenciamento (Atual: {veiculoOriginal.vencimentoLicenciamento:dd/MM/yyyy}): ",
+      true
         );
-        // Se o usuário pulou (e o resultado é 01/01/0001), mantém o original
+        // Se o usuário pulou (e o resultado é 01/01/0001), mantém o original
         if (veiculoAtualizado.vencimentoLicenciamento == DateTime.MinValue)
         {
           veiculoAtualizado.vencimentoLicenciamento = veiculoOriginal.vencimentoLicenciamento;
         }
 
-        // Hodômetro Atual
+
         veiculoAtualizado.hodometroAtual = LerDouble(
-            $"Hodômetro Atual (Atual: {veiculoOriginal.hodometroAtual} Km): ",
-            true // Permite entrada em branco
+      $"Hodômetro Atual (Atual: {veiculoOriginal.hodometroAtual} Km): ",
+      true
         );
-        // Se o usuário pulou (e o resultado é 0), mantém o original
+
         if (veiculoAtualizado.hodometroAtual == 0)
         {
           veiculoAtualizado.hodometroAtual = veiculoOriginal.hodometroAtual;
         }
 
-        // (Adicione outros campos editáveis aqui, como capacidadeCarga)
+        veiculoAtualizado.capacidadeCarga = LerDouble(
+      $"Capacidade de Carga (Atual: {veiculoOriginal.capacidadeCarga} Kg): ",
+      true
+        );
 
-        // 4. Chamar o Serviço
+        if (veiculoAtualizado.capacidadeCarga == 0)
+        {
+          veiculoAtualizado.capacidadeCarga = veiculoOriginal.capacidadeCarga;
+        }
+
         string resultado = _veiculoService.Atualizar(veiculoAtualizado);
 
-        // 5. Exibir resultado (Tela 1.3.4a ou 1.3.4b)
         if (resultado.Contains("Erro:"))
         {
           Console.WriteLine("\n=========================================");
@@ -253,7 +253,7 @@ namespace GestaoFrotas.ConsoleApp.Views
       Console.Write($"\nDeseja realmente inativar o veículo {veiculo.placa}? (S/N): ");
       string confirmacao = Console.ReadLine().ToUpper();
 
-      // 3. Chamar o Serviço (ou cancelar)
+      // 3. Chamar o Serviço (ou cancelar)
       if (confirmacao == "S")
       {
         string resultado = _veiculoService.Inativar(veiculo);
@@ -283,12 +283,13 @@ namespace GestaoFrotas.ConsoleApp.Views
       }
       else
       {
-        Console.WriteLine($"{"ID Frota",-10} {"Placa",-10} {"Status",-15} {"Hodômetro",-12}");
-        Console.WriteLine(new string('-', 50));
+       Console.WriteLine($"{"ID Frota",-10} {"Placa",-10} {"Status",-15} {"Hodômetro",-12} {"Licenc.",-8}");
+        Console.WriteLine(new string('-', 60));
 
         foreach (var v in veiculos)
         {
-          Console.WriteLine($"{v.idFrota,-10} {v.placa,-10} {v.status,-15} {v.hodometroAtual,-12} Km");
+          string statusLicenciamento = v.isLicenciamentoVencido() ? "VENCIDO" : "OK";
+          Console.WriteLine($"{v.idFrota,-10} {v.placa,-10} {v.status,-15} {v.hodometroAtual,-12} Km {statusLicenciamento,-8}");
         }
       }
 
@@ -329,7 +330,8 @@ namespace GestaoFrotas.ConsoleApp.Views
       Console.WriteLine($"Hodômetro Inicial: {v.hodometroInicial} Km");
       Console.WriteLine($"Capacidade Carga: {v.capacidadeCarga} Kg");
       Console.WriteLine($"Data Aquisição: {v.dataAquisicao:dd/MM/yyyy}");
-      Console.WriteLine($"Venc. Licenciamento: {v.vencimentoLicenciamento:dd/MM/yyyy}");
+      // Adiciona verificação do status de licenciamento
+     Console.WriteLine($"Venc. Licenciamento: {v.vencimentoLicenciamento:dd/MM/yyyy} ({(v.isLicenciamentoVencido() ? "VENCIDO" : "OK")})");
     }
 
     private double LerDouble(string prompt, bool permitirEmBranco = false)

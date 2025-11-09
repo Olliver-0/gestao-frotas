@@ -15,6 +15,33 @@ namespace GestaoFrotas.ConsoleApp.Views
       _abastecimentoService = abastecimentoService;
       _veiculoService = veiculoService;
     }
+  public void ExibirMenuAbastecimentos()
+  {
+      while (true)
+    {
+        Console.Clear();
+        Console.WriteLine("=========================================");
+        Console.WriteLine(" MENU DE ABASTECIMENTOS (RF10)");
+        Console.WriteLine("=========================================");
+        Console.WriteLine("1 - Registrar Abastecimento");
+        Console.WriteLine("0 - Voltar ao Menu Principal");
+        Console.Write("\nEscolha uma opção: ");
+        string opcao = Console.ReadLine();
+
+        switch (opcao)
+        {
+            case "1":
+                RegistrarAbastecimento();
+                break;
+            case "0":
+                return;
+            default:
+                Console.WriteLine("Opção inválida!");
+                Console.ReadKey();
+                break;
+        }
+    }
+  }
 
     public void RegistrarAbastecimento()
     {
@@ -41,57 +68,64 @@ namespace GestaoFrotas.ConsoleApp.Views
           return;
         }
 
-        Console.WriteLine("\n--- DADOS DO VEÍCULO ---");
-        Console.WriteLine($"Veículo: {veiculo.placa} (ID Frota: {veiculo.idFrota})");
-        Console.WriteLine($"Hodômetro Atual: {veiculo.hodometroAtual} Km");
-        Console.WriteLine("------------------------");
+        Console.WriteLine($"\n--- VEÍCULO SELECIONADO: {veiculo.placa} (ID Frota: {veiculo.idFrota}) ---");
+        Console.WriteLine($" Último Hodômetro Registrado: {veiculo.hodometroAtual:N2} Km");
 
-        Abastecimento novoAbastecimento = new Abastecimento();
-        novoAbastecimento.veiculoId = veiculo.idFrota;
+        DateTime data = LerData("Data do Abastecimento (dd/MM/yyyy): ");
+        double litrosAbastecidos = LerDouble("Litros Abastecidos: ");
+        double valorTotal = LerDouble("Valor Total da Nota: R$ ");
+        double hodometro;
+        while (true)
+        {
+          hodometro = LerDouble($"Hodômetro Atual (deve ser >= {veiculo.hodometroAtual:N2} Km): ");
+          if (hodometro >= veiculo.hodometroAtual)
+          {
+            break;
+          }
+          Console.WriteLine($"Erro: O hodômetro deve ser maior ou igual ao atual ({veiculo.hodometroAtual:N2} Km).");
+        }
 
-        novoAbastecimento.data = LerData("Data do Abastecimento (dd/mm/aaaa): ");
-        novoAbastecimento.litrosAbastecidos = LerDouble("Litros Abastecidos (ex: 50.5): ");
-        novoAbastecimento.valorTotal = LerDouble("Valor Total (R$) (ex: 300.25): ");
-
-        novoAbastecimento.hodometro = LerDouble($"Quilometragem atual do veículo (RF09): ");
+        var novoAbastecimento = new Abastecimento
+        {
+          data = data,
+          litrosAbastecidos = litrosAbastecidos,
+          valorTotal = valorTotal,
+          hodometro = hodometro,
+          veiculoId = veiculo.idFrota
+        };
 
         string resultado = _abastecimentoService.Adicionar(novoAbastecimento, veiculo);
 
-        if (resultado.Contains("Erro:"))
-        {
-          Console.WriteLine("\n=========================================");
-          Console.WriteLine($" ERRO - {resultado.ToUpper()}");
-          Console.WriteLine("=========================================");
-        }
-        else
-        {
-          Console.WriteLine("\n[SUCESSO]");
-          Console.WriteLine(resultado);
-        }
+        Console.WriteLine("\n--- RESULTADO DA OPERAÇÃO ---");
+        Console.WriteLine(resultado);
+
       }
       catch (Exception ex)
       {
-        Console.WriteLine($"\nOcorreu um erro inesperado: {ex.Message}");
+        Console.WriteLine($"\nERRO INESPERADO: {ex.Message}");
       }
-
       PausarEVoltar();
     }
 
     private Veiculo BuscarVeiculoPorPlacaOuId(string acao)
     {
-      Console.Write($"\nDigite a Placa ou o ID da Frota do veículo que deseja {acao}: ");
-      string busca = Console.ReadLine();
+      string busca;
+      Veiculo veiculo = null;
 
-      if (busca == "0") return null;
-
-      Veiculo veiculo = _veiculoService.BuscarPorPlacaOuId(busca);
-
-      if (veiculo == null)
+      while (veiculo == null)
       {
-        Console.WriteLine("\n=========================================");
-        Console.WriteLine(" ERRO - VEÍCULO NÃO ENCONTRADO");
-        Console.WriteLine("=========================================");
-        return null;
+        Console.Write($"\nDigite a Placa ou ID da Frota do veículo que deseja {acao} (ou '0' para cancelar): ");
+        busca = Console.ReadLine().ToUpper().Trim();
+
+        if (busca == "0") return null;
+        veiculo = _veiculoService.BuscarPorPlacaOuId(busca);
+
+        if (veiculo == null)
+        {
+          Console.WriteLine("\n=========================================");
+          Console.WriteLine(" ERRO - VEÍCULO NÃO ENCONTRADO. TENTE NOVAMENTE.");
+          Console.WriteLine("=========================================");
+        }
       }
 
       return veiculo;
@@ -111,7 +145,6 @@ namespace GestaoFrotas.ConsoleApp.Views
       {
         Console.Write(prompt);
         string entrada = Console.ReadLine();
-
         if (double.TryParse(entrada, NumberStyles.Float, CultureInfo.CurrentCulture, out valor) && valor >= 0)
         {
           return valor;
@@ -137,7 +170,7 @@ namespace GestaoFrotas.ConsoleApp.Views
         }
         else
         {
-          Console.WriteLine("Erro: Formato de data inválido. Use dd/mm/aaaa.");
+          Console.WriteLine("Erro: Data inválida. Digite no formato DD/MM/AAAA.");
         }
       }
     }

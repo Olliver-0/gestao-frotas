@@ -1,110 +1,97 @@
 ﻿using System;
-using GestaoFrotas.ConsoleApp.Models;
 using GestaoFrotas.ConsoleApp.Services;
 using GestaoFrotas.ConsoleApp.Views;
+using GestaoFrotas.ConsoleApp.Models;
 
 namespace GestaoFrotas.ConsoleApp
 {
-  class Program
-  {
-    // --- Instâncias de Serviços ---
-    private static VeiculoService _veiculoService = new VeiculoService();
-    private static AbastecimentoService _abastecimentoService = new AbastecimentoService();
-    private static ChecklistService _checklistService = new ChecklistService();
-    
-    // Serviços ADICIONADOS (RF02, RF05, RF06)
-    private static MotoristaService _motoristaService = new MotoristaService();
-    
-    // OsService agora precisa do MotoristaService para a RN-002
-    private static OsService _osService = new OsService(_veiculoService, _motoristaService); 
-    
-    private static ManutencaoAutomaticaService _manutencaoAutomaticaService = new ManutencaoAutomaticaService(_veiculoService);
-    // private static PecaService _pecaService = new PecaService();
-
-
-    // --- Instâncias de Views ---
-    private static VeiculoView _veiculoView = new VeiculoView(_veiculoService);
-    private static AbastecimentoView _abastecimentoView = new AbastecimentoView(_abastecimentoService, _veiculoService);
-    private static ChecklistView _checklistView = new ChecklistView(_checklistService, _veiculoService);
-    // private static PecaView _pecaView = new PecaView();
-
-    // Views ADICIONADAS (RF02, RF05, RF06/07)
-    private static OsView _osView = new OsView(_osService, _veiculoService); 
-    
-    // MotoristaView agora precisa do OsService para a verificação de exclusão
-    private static MotoristaView _motoristaView = new MotoristaView(_motoristaService, _osService);
-    
-    private static ManutencaoAutomaticaView _manutencaoAutomaticaView = new ManutencaoAutomaticaView(_manutencaoAutomaticaService, _veiculoService);
-    
-
-    static void Main(string[] args)
+    class Program
     {
-      while (true)
-      {
-        Console.Clear(); 
-        Console.WriteLine("=========================================");
-        Console.WriteLine(" GESTÃO DE MANUTENÇÃO DE FROTAS"); 
-        Console.WriteLine("=========================================");
-        Console.WriteLine();
-        Console.WriteLine("Menu Principal:");
-        Console.WriteLine("\n--- MÓDULOS COORDENADOR ---"); 
-        Console.WriteLine("1 - Gestão de Veículos (RF01)");
-        Console.WriteLine("2 - Gestão de Peças e Estoque");
-        Console.WriteLine("3 - Gestão de Manutenção (OS) (RF06/07)");
-        Console.WriteLine("7 - Gestão de Motoristas (RF02)");
-        Console.WriteLine("6 - Relatórios (RN-010)"); 
-        
-        Console.WriteLine("\n--- MÓDULOS MOTORISTA ---"); 
-        Console.WriteLine("4 - Registrar Abastecimento (RN-006)"); 
-        Console.WriteLine("5 - Registrar Checklist Pré-Viagem (RN-007)"); 
-        Console.WriteLine("8 - Manutenções Automáticas (RF05)");
-
-        Console.WriteLine();
-        Console.WriteLine("0 - Sair do Sistema");
-        Console.WriteLine();
-        Console.Write("Digite sua opção: ");
-
-        string opcao = Console.ReadLine();
-
-        switch (opcao)
+        static void Main(string[] args)
         {
-          case "1":
-            _veiculoView.ExibirMenuVeiculos();
-            break;
-          case "2":
-            // _pecaView.ExibirMenuPecas(); 
-            Console.WriteLine("Módulo de Peças em construção...");
-            Console.ReadKey();
-            break;
-          case "3":
-            _osView.ExibirMenuOS(); 
-            break;
-          case "4":
-            _abastecimentoView.RegistrarAbastecimento();
-            break;
-          case "5":
-            _checklistView.ExecutarChecklist();
-            break;
-          case "6":
-            // ...
-            Console.WriteLine("Módulo de Relatórios em construção...");
-            Console.ReadKey();
-            break;
-          case "7":
-            _motoristaView.ExibirMenuMotoristas();
-            break;
-          case "8":
-            _manutencaoAutomaticaView.ExibirMenuManutencao();
-            break;
-          case "0":
-            Console.WriteLine("Saindo do sistema. Até logo!");
-            return; 
-          default:
-            Console.WriteLine("Opção inválida! Tente novamente.");
-            Console.ReadKey(); 
-            break;
+            var usuarioService = new UsuarioService();
+            var motoristaService = new MotoristaService();
+            var veiculoService = new VeiculoService();
+            var abastecimentoService = new AbastecimentoService();
+            var osService = new OsService(veiculoService, motoristaService);
+            var checklistService = new ChecklistService();
+            var manutencaoAutomaticaService = new ManutencaoAutomaticaService(veiculoService);
+            var relatorioService = new RelatorioService(
+                veiculoService,
+                abastecimentoService,
+                osService,
+                motoristaService,
+                checklistService);
+
+            var loginView = new LoginView(usuarioService);
+            var veiculoView = new VeiculoView(veiculoService, motoristaService);
+            var abastecimentoView = new AbastecimentoView(abastecimentoService, veiculoService);
+            var osView = new OsView(osService, veiculoService, motoristaService);
+            var relatorioView = new RelatorioView(relatorioService, veiculoService);
+            var usuarioView = new UsuarioView(usuarioService);
+
+            Usuario usuarioLogado = usuarioService.ConsultarPorLogin("admin@frota.com");
+
+
+            if (usuarioLogado != null && usuarioLogado.autenticar("123"))
+            {
+                Console.WriteLine($"\nUsuário logado: {usuarioLogado.nome} ({usuarioLogado.perfil})");
+                ExibirMenuPrincipal(usuarioLogado.perfil, veiculoView, abastecimentoView, osView, relatorioView, usuarioView);
+            }
+            else
+            {
+                Console.WriteLine("\nErro: Não foi possível logar com o usuário padrão. Verifique o UsuarioService e a senha.");
+            }
         }
-      }
+        static void ExibirMenuPrincipal(string perfil, VeiculoView veiculoView, AbastecimentoView abastecimentoView, OsView osView, RelatorioView relatorioView, UsuarioView usuarioView)
+        {
+            bool continuar = true;
+            while (continuar)
+            {
+                Console.Clear();
+                Console.WriteLine("=========================================");
+                Console.WriteLine(" MENU PRINCIPAL - GESTÃO DE FROTAS");
+                Console.WriteLine("=========================================");
+                Console.WriteLine("1. Veículos ");
+                Console.WriteLine("2. Ordens de Serviço (OS)");
+                Console.WriteLine("3. Abastecimentos");
+                Console.WriteLine("4. Relatórios");
+                Console.WriteLine("5. Gerenciar Usuários");
+                Console.WriteLine("0. Sair");
+                Console.Write("Opção: ");
+
+                string opcao = Console.ReadLine();
+
+                switch (opcao)
+                {
+                    case "1":
+                        veiculoView.ExibirMenuVeiculos();
+                        break;
+                    case "2":
+                        osView.ExibirMenuOS();
+                        break;
+                    case "3":
+                        abastecimentoView.ExibirMenuAbastecimentos();
+                        break;
+                    case "4":
+                        relatorioView.MenuRelatorios();
+                        break;
+                    case "5":
+                        usuarioView.GerenciarUsuarios();
+                        break;
+                    case "9":
+                        Console.WriteLine("\nLogout realizado.");
+                        return;
+                    case "0":
+                        continuar = false;
+                        Console.WriteLine("\nSistema encerrado.");
+                        break;
+                    default:
+                        Console.WriteLine("Opção inválida. Pressione qualquer tecla para tentar novamente.");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
     }
-  }
 }
