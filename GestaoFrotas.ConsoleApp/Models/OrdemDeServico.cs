@@ -15,8 +15,11 @@ namespace GestaoFrotas.ConsoleApp.Models
     public string oficina; 
     public string status;
     public double? custoFinal; 
-    public DateTime? dataFechamento; 
+    public DateTime? dataFechamento;
     public double? hodometroSaida;
+    
+    
+
     
     public string observacoesFechamento; 
     public bool documentosValidados;

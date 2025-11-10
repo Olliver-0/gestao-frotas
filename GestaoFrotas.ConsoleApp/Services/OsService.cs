@@ -13,6 +13,8 @@ namespace GestaoFrotas.ConsoleApp.Services
     private readonly VeiculoService _veiculoService;
     private readonly MotoristaService _motoristaService;
 
+    private readonly PecaService _pecaService;
+
     public OsService(VeiculoService veiculoService, MotoristaService motoristaService)
     {
       _veiculoService = veiculoService;
@@ -32,7 +34,6 @@ namespace GestaoFrotas.ConsoleApp.Services
       {
         return "Erro: Motorista não localizado.";
       }
-
       if (veiculo.isLicenciamentoVencido())
       {
         return $"Erro: Criação de OS bloqueada. O licenciamento do veículo {veiculo.placa} está vencido.";
@@ -49,7 +50,6 @@ namespace GestaoFrotas.ConsoleApp.Services
       os.status = "Aberta"; 
       os.documentosValidados = false;
       os.hodometroEntrada = veiculo.hodometroAtual;
-
       _ordensDeServico.Add(os);
 
       return $"Ordem de Serviço [ID {os.id}] criada com sucesso para o veículo [{placa}]."; 
